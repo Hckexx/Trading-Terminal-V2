@@ -190,7 +190,7 @@
         </main>
 
 
-        <!-- ==================================== -->
+                <!-- ==================================== -->
         <!-- VIEW: POSITION SIZE CALCULATOR       -->
         <!-- ==================================== -->
         <section id="view-calculator" class="view-container" role="tabpanel">
@@ -198,12 +198,152 @@
                 <h2 class="view-title">Position Size Calculator</h2>
                 <p class="view-subtitle">Professional Risk Management</p>
             </div>
-            <div class="placeholder-content">
-                <span class="placeholder-icon">🧮</span>
-                <p>Calculator will be wired in V2.3</p>
+
+            <div class="calculator-layout">
+                <!-- Input Panel -->
+                <div class="calc-input-panel">
+                    <!-- Account Selection -->
+                    <div class="calc-section">
+                        <h3 class="calc-section-title">Account</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="calcAccount">Account</label>
+                                <select id="calcAccount" class="calc-select">
+                                    <option value="">Select Account</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="calcRiskType">Risk Type</label>
+                                <select id="calcRiskType" class="calc-select">
+                                    <option value="percent">Risk %</option>
+                                    <option value="cash">Risk $</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label id="calcRiskLabel" for="calcRiskValue">Risk Value (%)</label>
+                                <input type="number" id="calcRiskValue" value="0.5" step="any" min="0" class="calc-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="calcLeverage">Leverage</label>
+                                <select id="calcLeverage" class="calc-select">
+                                    <option value="0">None (Spot)</option>
+                                    <option value="10">1:10</option>
+                                    <option value="30">1:30</option>
+                                    <option value="50">1:50</option>
+                                    <option value="100" selected>1:100</option>
+                                    <option value="200">1:200</option>
+                                    <option value="500">1:500</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Details -->
+                    <div class="calc-section">
+                        <h3 class="calc-section-title">Trade Setup</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="calcAsset">Asset</label>
+                                <select id="calcAsset" class="calc-select">
+                                    <option value="XAUUSD">XAUUSD (Gold)</option>
+                                    <option value="BTCUSD">BTCUSD (Bitcoin)</option>
+                                    <option value="ETHUSD">ETHUSD (Ethereum)</option>
+                                    <option value="EURUSD">EURUSD (Euro)</option>
+                                    <option value="GBPUSD">GBPUSD (Pound)</option>
+                                    <option value="US30">US30 (Dow)</option>
+                                    <option value="NAS100">NAS100 (Nasdaq)</option>
+                                    <option value="custom">Custom / Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Direction</label>
+                                <div class="direction-toggle-calc">
+                                    <button type="button" id="calcBtnBuy" class="dir-btn-calc active" data-dir="BUY">Buy</button>
+                                    <button type="button" id="calcBtnSell" class="dir-btn-calc" data-dir="SELL">Sell</button>
+                                </div>
+                                <input type="hidden" id="calcDirection" value="BUY">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="calcEntry">Entry Price</label>
+                                <input type="number" id="calcEntry" placeholder="0.00" step="any" min="0" class="calc-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="calcSL">Stop Loss</label>
+                                <input type="number" id="calcSL" placeholder="0.00" step="any" min="0" class="calc-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="calcTP">Take Profit</label>
+                                <input type="number" id="calcTP" placeholder="Optional" step="any" min="0" class="calc-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="calcError" class="error-message"></div>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="calc-output-panel">
+                    <div class="calc-section">
+                        <h3 class="calc-section-title">Results</h3>
+                        
+                        <!-- Primary Result -->
+                        <div class="calc-result-primary">
+                            <span class="calc-result-label">Recommended Lot Size</span>
+                            <span class="calc-result-value" id="calcLotSize">0.00</span>
+                            <span class="calc-result-unit">Lots</span>
+                        </div>
+
+                        <!-- Secondary Results -->
+                        <div class="calc-results-grid">
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">Units / Contracts</span>
+                                <span class="calc-result-value-sm" id="calcUnits">0.00</span>
+                            </div>
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">Dollar Risk</span>
+                                <span class="calc-result-value-sm risk-text" id="calcDollarRisk">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="calc-results-grid">
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">SL Distance</span>
+                                <span class="calc-result-value-sm" id="calcSLDistance">0.0</span>
+                                <span class="calc-result-unit-sm" id="calcSLUnit">pips</span>
+                            </div>
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">Risk:Reward</span>
+                                <span class="calc-result-value-sm rr-text" id="calcRR">--</span>
+                            </div>
+                        </div>
+
+                        <div class="calc-results-grid">
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">Margin Required</span>
+                                <span class="calc-result-value-sm" id="calcMargin" style="color:#90caf9;">$0.00</span>
+                            </div>
+                            <div class="calc-result-tile">
+                                <span class="calc-result-label-sm">Potential Profit</span>
+                                <span class="calc-result-value-sm profit-text" id="calcProfit">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Warning -->
+                        <div id="calcWarning" class="warning-message"></div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="calc-actions">
+                        <button id="btnSaveToJournal" class="btn btn-primary" disabled>Save to Journal</button>
+                        <button id="btnCalcCopy" class="btn btn-secondary">Copy Results</button>
+                    </div>
+                </div>
             </div>
         </section>
-
 
         <!-- ==================================== -->
         <!-- VIEW: TRADE CHECKLIST                -->

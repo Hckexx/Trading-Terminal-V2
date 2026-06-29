@@ -70,3 +70,5 @@
         init();
     }
 })();
+// Initialize Calculator view
+CalculatorView.init();

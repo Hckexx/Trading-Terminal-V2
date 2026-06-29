@@ -218,23 +218,21 @@ const JournalView = {
     // NEW TRADE MODAL
     // ==========================================
     openNewTradeModal() {
-        // Check if accounts exist
-        if (Store.accounts.length === 0) {
-            UI.showToast('Please add an account in Settings first.');
-            Router.navigateTo('settings');
-            return;
-        }
+    // Check if accounts exist
+    if (!Store.accounts || Store.accounts.length === 0) {
+        UI.showToast('Please add an account in Settings first.');
+        return; // Don't redirect — just show message
+    }
 
-        this.elements.modalTitle.textContent = 'New Trade Entry';
-        this.elements.tradeForm.reset();
-        this.populateAccountDropdown(this.elements.tradeAccount);
-        this.setDefaultDate();
-        this.setDirection('BUY', 'new');
-        this.setRating(0, 'new');
-        this.elements.tradeRating.value = 0;
-        this.openModal(this.elements.tradeModal);
-    },
-
+    this.elements.modalTitle.textContent = 'New Trade Entry';
+    this.elements.tradeForm.reset();
+    this.populateAccountDropdown(this.elements.tradeAccount);
+    this.setDefaultDate();
+    this.setDirection('BUY', 'new');
+    this.setRating(0, 'new');
+    this.elements.tradeRating.value = 0;
+    this.openModal(this.elements.tradeModal);
+},
     setDefaultDate() {
         const today = new Date().toISOString().split('T')[0];
         if (this.elements.tradeDate) this.elements.tradeDate.value = today;

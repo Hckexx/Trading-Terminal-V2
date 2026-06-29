@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Dashboard View
+   TRADETERMINAL V2 — Dashboard View (Fixed)
    ========================================================================== */
 
 const DashboardView = {
@@ -55,9 +55,13 @@ const DashboardView = {
     },
 
     updateGreeting() {
-        const name = Store.traderName || 'Trader';
+        const name = Store.traderName;
         if (this.elements.greeting) {
-            this.elements.greeting.textContent = `Welcome back, ${name}`;
+            if (name && name.length > 0) {
+                this.elements.greeting.textContent = 'Welcome back, ' + name;
+            } else {
+                this.elements.greeting.textContent = 'Welcome back';
+            }
         }
     },
 
@@ -94,15 +98,14 @@ const DashboardView = {
         // Today's date
         const today = new Date().toISOString().split('T')[0];
         
-        // Today's trades
-        const todayTrades = trades.filter(t => t.date === today);
-        const todayClosed = todayTrades.filter(t => t.status === 'CLOSED');
+        // Today's trades — filter by date, all trades with a result are "closed"
+        const todayTrades = trades.filter(t => t.date === today && t.result);
         
         // Today's P&L
-        const todayPnL = todayClosed.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
+        const todayPnL = todayTrades.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
         
-        // Win rate (all time)
-        const allClosed = trades.filter(t => t.status === 'CLOSED' && t.result);
+        // Win rate (all time) — any trade with a result counts
+        const allClosed = trades.filter(t => t.result);
         const wins = allClosed.filter(t => t.result === 'WIN').length;
         const totalClosed = allClosed.length;
         const winRate = totalClosed > 0 ? (wins / totalClosed) * 100 : null;
@@ -204,7 +207,6 @@ const DashboardView = {
     },
 
     showStopBanner(show) {
-        // Optional: Create a stop trading banner element if you add one to HTML
         const existingBanner = document.getElementById('stopTradingBanner');
         if (existingBanner) {
             existingBanner.classList.toggle('visible', show);
@@ -218,8 +220,8 @@ const DashboardView = {
         const trades = Store.journal || [];
         const recent = trades
             .sort((a, b) => {
-                const dateA = `${a.date}T${a.time || '00:00'}`;
-                const dateB = `${b.date}T${b.time || '00:00'}`;
+                const dateA = `${a.date}T${a.createdAt || '00:00'}`;
+                const dateB = `${b.date}T${b.createdAt || '00:00'}`;
                 return dateB.localeCompare(dateA);
             })
             .slice(0, 5);
@@ -236,8 +238,7 @@ const DashboardView = {
         const pnl = parseFloat(trade.pnl) || 0;
         const pnlClass = trade.result === 'WIN' ? 'win' : trade.result === 'LOSS' ? 'loss' : '';
         const pnlSign = pnl >= 0 ? '+' : '';
-        const grade = getGrade(trade.checklistScore);
-        const gradeColor = getGradeColor(grade);
+        const stars = '★'.repeat(trade.rating || 0) + '☆'.repeat(5 - (trade.rating || 0));
 
         return `
             <div class="trade-row-compact" data-trade-id="${trade.id}">
@@ -246,7 +247,7 @@ const DashboardView = {
                     <span class="trade-direction ${trade.direction === 'BUY' ? 'buy' : 'sell'}">
                         ${trade.direction || '--'}
                     </span>
-                    ${grade ? `<span class="trade-score ${gradeColor}">${grade}</span>` : ''}
+                    ${trade.rating > 0 ? `<span class="trade-score">${stars}</span>` : ''}
                 </div>
                 <div class="trade-info-right">
                     <span class="trade-pnl ${pnlClass}">${pnlSign}${FORMATTERS.currency.format(Math.abs(pnl))}</span>
@@ -257,7 +258,7 @@ const DashboardView = {
     },
 
     updateHeaderStats() {
-        // Already handled in calculateMetrics via element references
+        // Handled in calculateMetrics
     },
 
     getActiveAccount() {

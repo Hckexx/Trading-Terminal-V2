@@ -18,9 +18,12 @@
         // Initialize Dashboard view (it's the default)
         DashboardView.init();
 
-       // Initialize Journal view
+        // Initialize Journal view
         JournalView.init();
-       
+
+        // Initialize Settings view
+        SettingsView.init();
+
         // Subscribe to journal updates for dashboard refresh
         EventBus.on(EVENTS.JOURNAL_UPDATED, () => {
             if (Router.currentView === 'dashboard') {
@@ -49,6 +52,14 @@
         if (Store.activeAccountId && !Store.accounts.find(a => a.id === Store.activeAccountId)) {
             Store.activeAccountId = null;
             Storage.remove(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT);
+        }
+
+        // If no active account but accounts exist, set first as active
+        if (!Store.activeAccountId && Store.accounts.length > 0) {
+            Store.accounts[0].isActive = true;
+            Store.activeAccountId = Store.accounts[0].id;
+            Storage.save(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT, Store.accounts[0].id);
+            Storage.save(CONFIG.STORAGE_KEYS.ACCOUNTS, Store.accounts);
         }
     }
 

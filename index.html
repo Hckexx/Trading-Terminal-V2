@@ -12,11 +12,7 @@
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/calculator.css">
-    <link rel="stylesheet" href="css/checklist.css">
     <link rel="stylesheet" href="css/journal.css">
-    <link rel="stylesheet" href="css/tools.css">
-    <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
 
@@ -48,7 +44,7 @@
                         <span class="nav-label">Position Calculator</span>
                     </button>
                 </li>
-                <li class="nav-item" id="nav-checkins">
+                <li class="nav-item" id="nav-checklist">
                     <button class="nav-link" data-view="checklist">
                         <span class="nav-icon">✅</span>
                         <span class="nav-label">Trade Checklist</span>
@@ -213,7 +209,7 @@
             </div>
             <div class="placeholder-content">
                 <span class="placeholder-icon">🧮</span>
-                <p>Calculator will be wired in V2.1</p>
+                <p>Calculator will be wired in V2.3</p>
             </div>
         </section>
 
@@ -228,12 +224,12 @@
             </div>
             <div class="placeholder-content">
                 <span class="placeholder-icon">✅</span>
-                <p>Checklist will be wired in V2.2</p>
+                <p>Checklist will be wired in V2.4</p>
             </div>
         </section>
 
 
-               <!-- ==================================== -->
+        <!-- ==================================== -->
         <!-- VIEW: TRADE JOURNAL                  -->
         <!-- ==================================== -->
         <section id="view-journal" class="view-container" role="tabpanel">
@@ -423,7 +419,7 @@
                 </div>
             </div>
 
-            <!-- Edit Trade Modal (Same structure, different ID) -->
+            <!-- Edit Trade Modal -->
             <div id="editTradeModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
                 <div class="modal-container modal-journal">
                     <div class="modal-header">
@@ -432,7 +428,6 @@
                     </div>
                     <form id="editTradeForm" class="modal-body" autocomplete="off">
                         <input type="hidden" id="editTradeId">
-                        <!-- Same fields as New Trade form -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="editTradeAccount">Account</label>
@@ -564,69 +559,63 @@
 
             <!-- Collapsible Tool Cards -->
             <div class="tools-grid">
-                <!-- Pip Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>📏 Pip Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
 
-                <!-- Drawdown Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>📉 Drawdown Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
 
-                <!-- Compounding Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>📈 Compounding Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
 
-                <!-- Profit Split Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>💰 Profit Split Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
 
-                <!-- Daily Target Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>🎯 Daily Target Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
 
-                <!-- Risk of Ruin Calculator -->
                 <details class="tool-card">
                     <summary class="tool-card-header">
                         <span>⚠️ Risk of Ruin Calculator</span>
                         <span class="toggle-indicator">▶</span>
                     </summary>
                     <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.3</p>
+                        <p>Coming in V2.5</p>
                     </div>
                 </details>
             </div>

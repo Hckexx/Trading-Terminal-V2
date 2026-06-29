@@ -263,6 +263,14 @@
     margin: 0 auto;
 }
 
+.view-container {
+    display: none;
+    padding: var(--space-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow-x: hidden;  /* ← ADD THIS LINE */
+}
+
 .view-container.active {
     display: block;
 }

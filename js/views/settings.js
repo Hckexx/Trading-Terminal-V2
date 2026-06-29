@@ -45,22 +45,23 @@ const SettingsView = {
         this.elements.btnResetData = document.getElementById('btnResetData');
     },
 
-   // Trader name — auto-save on input AND on blur
-this.elements.traderName.addEventListener('input', () => {
-    Store.traderName = this.elements.traderName.value.trim();
-    Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
-    EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
-    EventBus.emit(EVENTS.DASHBOARD_REFRESH);
-});
+    bindEvents() {
+        // Trader name — auto-save on input
+        this.elements.traderName.addEventListener('input', () => {
+            Store.traderName = this.elements.traderName.value.trim();
+            Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
+            EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
+            EventBus.emit(EVENTS.DASHBOARD_REFRESH);
+        });
 
-// Also save on blur (when user clicks away)
-this.elements.traderName.addEventListener('blur', () => {
-    Store.traderName = this.elements.traderName.value.trim();
-    Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
-    EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
-    EventBus.emit(EVENTS.DASHBOARD_REFRESH);
-    UI.showToast('Name saved.');
-});
+        // Also save on blur (when user clicks away)
+        this.elements.traderName.addEventListener('blur', () => {
+            Store.traderName = this.elements.traderName.value.trim();
+            Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
+            EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
+            EventBus.emit(EVENTS.DASHBOARD_REFRESH);
+            UI.showToast('Name saved.');
+        });
 
         // Open Add Account modal
         this.elements.btnAddAccount.addEventListener('click', () => this.openAccountModal());
@@ -88,6 +89,13 @@ this.elements.traderName.addEventListener('blur', () => {
 
         // Reset everything
         this.elements.btnResetData.addEventListener('click', () => this.resetAllData());
+
+        // Re-render when settings view becomes visible
+        EventBus.on(EVENTS.VIEW_CHANGED, (data) => {
+            if (data.view === 'settings') {
+                this.render();
+            }
+        });
     },
 
     // ==========================================
@@ -184,7 +192,6 @@ this.elements.traderName.addEventListener('blur', () => {
         this.editingAccountId = accountId;
 
         if (accountId) {
-            // Edit mode
             const account = Store.accounts.find(a => a.id === accountId);
             if (!account) return;
 
@@ -199,7 +206,6 @@ this.elements.traderName.addEventListener('blur', () => {
             this.elements.accountProfitTarget.value = account.profitTargetPercent || '';
             this.elements.accountMinDays.value = account.minTradingDays || '';
         } else {
-            // Add mode
             this.elements.accountModalTitle.textContent = 'Add Account';
             this.elements.accountForm.reset();
             this.elements.accountFormId.value = '';
@@ -229,7 +235,6 @@ this.elements.traderName.addEventListener('blur', () => {
         const profitTarget = parseFloat(this.elements.accountProfitTarget.value) || 0;
         const minDays = parseInt(this.elements.accountMinDays.value) || 0;
 
-        // Validation
         if (!name) {
             UI.showToast('Please enter an account name.');
             return;
@@ -253,7 +258,6 @@ this.elements.traderName.addEventListener('blur', () => {
         };
 
         if (this.editingAccountId) {
-            // Update existing
             const index = Store.accounts.findIndex(a => a.id === this.editingAccountId);
             if (index !== -1) {
                 accountData.isActive = Store.accounts[index].isActive;
@@ -261,8 +265,6 @@ this.elements.traderName.addEventListener('blur', () => {
             }
             UI.showToast('Account updated.');
         } else {
-            // Add new
-            // If this is the first account, set it as active automatically
             if (Store.accounts.length === 0) {
                 accountData.isActive = true;
                 Store.activeAccountId = accountData.id;
@@ -280,10 +282,8 @@ this.elements.traderName.addEventListener('blur', () => {
     // SET ACTIVE ACCOUNT
     // ==========================================
     setActiveAccount(accountId) {
-        // Deactivate all
         Store.accounts.forEach(a => a.isActive = false);
         
-        // Activate selected
         const account = Store.accounts.find(a => a.id === accountId);
         if (account) {
             account.isActive = true;
@@ -306,12 +306,10 @@ this.elements.traderName.addEventListener('blur', () => {
         const wasActive = account.isActive;
         Store.accounts = Store.accounts.filter(a => a.id !== accountId);
 
-        // If deleted account was active, clear active
         if (wasActive) {
             Store.activeAccountId = null;
             Storage.remove(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT);
             
-            // Set first remaining account as active
             if (Store.accounts.length > 0) {
                 Store.accounts[0].isActive = true;
                 Store.activeAccountId = Store.accounts[0].id;

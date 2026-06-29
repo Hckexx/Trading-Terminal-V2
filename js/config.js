@@ -80,3 +80,38 @@ function getGradeColor(grade) {
     const entry = GRADE_THRESHOLDS[grade];
     return entry ? entry.color : '';
 }
+// ==========================================
+// JOURNAL CONSTANTS
+// ==========================================
+
+const JOURNAL_PAIRS = [
+    'XAUUSD',
+    'EURUSD',
+    'GBPUSD',
+    'BTCUSD',
+    'US30',
+    'NAS100',
+    'OTHER'
+];
+
+const JOURNAL_RESULTS = ['WIN', 'LOSS', 'BREAKEVEN'];
+
+const DEFAULT_TRADE = {
+    id: '',
+    accountId: '',
+    date: '',
+    pair: '',
+    direction: 'BUY',
+    result: '',
+    pnl: 0,
+    riskPercent: 0,
+    entry: null,
+    sl: null,
+    tp: null,
+    lotSize: null,
+    rating: 0,
+    wentWell: '',
+    mistakes: '',
+    lesson: '',
+    createdAt: ''
+};

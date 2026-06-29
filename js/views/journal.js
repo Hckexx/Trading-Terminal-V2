@@ -1,6 +1,6 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Trade Journal View
-   Complete CRUD + Filtering + Stats + Dashboard Sync
+   TRADETERMINAL V2 — Trade Journal View (Refined)
+   Complete CRUD + Filtering + Animated Stats + Dashboard Sync
    ========================================================================== */
 
 const JournalView = {
@@ -12,6 +12,16 @@ const JournalView = {
     },
     editingTradeId: null,
     viewingTradeId: null,
+    // For count-up animation
+    _animationFrames: {},
+    _currentStats: {
+        totalTrades: 0,
+        winRate: 0,
+        totalPnL: 0,
+        avgRR: 0,
+        bestTrade: 0,
+        worstTrade: 0
+    },
 
     // ==========================================
     // INITIALIZATION
@@ -593,6 +603,9 @@ const JournalView = {
         this.populateFilterDropdowns();
     },
 
+    // ==========================================
+    // ANIMATED STATISTICS
+    // ==========================================
     updateStats() {
         const trades = this.getFilteredTrades();
         const total = trades.length;
@@ -602,39 +615,130 @@ const JournalView = {
         const closed = wins + losses;
 
         const totalPnL = trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-        const winRate = closed > 0 ? Math.round((wins / closed) * 100) : null;
+        const winRate = closed > 0 ? Math.round((wins / closed) * 100) : 0;
 
-        let best = null, worst = null;
-        trades.forEach(t => {
-            const p = t.pnl || 0;
-            if (best === null || p > best) best = p;
-            if (worst === null || p < worst) worst = p;
-        });
+        // Best Trade — highest positive P&L
+        let best = null;
+        const winningTrades = trades.filter(t => (t.pnl || 0) > 0);
+        if (winningTrades.length > 0) {
+            best = Math.max(...winningTrades.map(t => t.pnl));
+        }
 
+        // Worst Trade — only from negative P&L trades
+        let worst = null;
+        const losingTrades = trades.filter(t => (t.pnl || 0) < 0);
+        if (losingTrades.length > 0) {
+            worst = Math.min(...losingTrades.map(t => t.pnl));
+        }
+
+        // Avg R:R
         const winTrades = trades.filter(t => t.result === 'WIN' && t.pnl > 0);
         const lossTrades = trades.filter(t => t.result === 'LOSS' && t.pnl < 0);
-        let avgRR = null;
+        let avgRR = 0;
         if (winTrades.length > 0 && lossTrades.length > 0) {
             const avgWin = winTrades.reduce((s, t) => s + t.pnl, 0) / winTrades.length;
             const avgLoss = Math.abs(lossTrades.reduce((s, t) => s + t.pnl, 0) / lossTrades.length);
             if (avgLoss > 0) avgRR = avgWin / avgLoss;
         }
 
-        this.elements.totalTrades.textContent = total;
-        this.elements.winRate.textContent = winRate !== null ? `${winRate}%` : '--';
-        this.elements.totalPnL.textContent = (totalPnL >= 0 ? '+' : '-') + FORMATTERS.currency.format(Math.abs(totalPnL));
-        this.elements.totalPnL.style.color = totalPnL >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-        this.elements.avgRR.textContent = avgRR !== null ? FORMATTERS.ratio.format(avgRR) + ':1' : '--';
-        this.elements.bestTrade.textContent = best !== null ? '+' + FORMATTERS.currency.format(best) : '--';
-        this.elements.worstTrade.textContent = worst !== null ? FORMATTERS.currency.format(worst) : '--';
+        // Animate all stats
+        this._animateStat(this.elements.totalTrades, this._currentStats.totalTrades, total, 'int');
+        this._animateStat(this.elements.winRate, this._currentStats.winRate, winRate, 'percent');
+        this._animateStat(this.elements.totalPnL, this._currentStats.totalPnL, totalPnL, 'currency');
+        this._animateStat(this.elements.avgRR, this._currentStats.avgRR, avgRR, 'ratio');
+        this._animateStat(this.elements.bestTrade, this._currentStats.bestTrade, best, 'currency');
+        this._animateStat(this.elements.worstTrade, this._currentStats.worstTrade, worst, 'currency');
+
+        // Store current values for next animation
+        this._currentStats.totalTrades = total;
+        this._currentStats.winRate = winRate;
+        this._currentStats.totalPnL = totalPnL;
+        this._currentStats.avgRR = avgRR;
+        this._currentStats.bestTrade = best;
+        this._currentStats.worstTrade = worst;
     },
 
+    _animateStat(element, startValue, endValue, type) {
+        if (!element) return;
+
+        // Cancel any existing animation on this element
+        if (this._animationFrames[element.id]) {
+            cancelAnimationFrame(this._animationFrames[element.id]);
+        }
+
+        // Handle null values
+        const start = (startValue !== null && startValue !== undefined) ? startValue : 0;
+        const end = (endValue !== null && endValue !== undefined) ? endValue : 0;
+
+        // If no change, just update immediately
+        if (Math.abs(end - start) < 0.001) {
+            this._renderStatValue(element, end, type);
+            return;
+        }
+
+        const duration = 400; // ms
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Ease-out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = start + (end - start) * eased;
+
+            this._renderStatValue(element, current, type);
+
+            if (progress < 1) {
+                this._animationFrames[element.id] = requestAnimationFrame(animate);
+            } else {
+                this._renderStatValue(element, end, type);
+            }
+        };
+
+        this._animationFrames[element.id] = requestAnimationFrame(animate);
+    },
+
+    _renderStatValue(element, value, type) {
+        if (type === 'int') {
+            element.textContent = Math.round(value);
+        } else if (type === 'percent') {
+            element.textContent = value > 0 ? `${Math.round(value)}%` : '--';
+        } else if (type === 'currency') {
+            if (value === null || value === 0) {
+                element.textContent = '--';
+                element.style.color = '';
+            } else {
+                const sign = value >= 0 ? '+' : '';
+                element.textContent = sign + FORMATTERS.currency.format(Math.abs(value));
+                element.style.color = value >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            }
+        } else if (type === 'ratio') {
+            element.textContent = value > 0 ? FORMATTERS.ratio.format(value) + ':1' : '--';
+        }
+    },
+
+    // ==========================================
+    // RENDER ENTRIES
+    // ==========================================
     renderEntries() {
         const trades = this.getFilteredTrades();
         const container = this.elements.entriesContainer;
 
         if (trades.length === 0) {
-            container.innerHTML = '<p class="empty-state">No trades found matching your filters.</p>';
+            container.innerHTML = `
+                <div class="empty-state-journal">
+                    <div class="empty-state-icon">📓</div>
+                    <h3 class="empty-state-title">No Trades Yet</h3>
+                    <p class="empty-state-description">Every great trader starts with a single entry.<br>Log your first trade and begin building your edge.</p>
+                    <button class="btn btn-primary" id="btnEmptyStateNewTrade">+ New Trade</button>
+                </div>
+            `;
+            // Bind the empty state button
+            const emptyBtn = document.getElementById('btnEmptyStateNewTrade');
+            if (emptyBtn) {
+                emptyBtn.addEventListener('click', () => this.openNewTradeModal());
+            }
             return;
         }
 
@@ -753,6 +857,7 @@ const JournalView = {
     persistAndRefresh() {
         Storage.save(CONFIG.STORAGE_KEYS.JOURNAL, Store.journal);
         this.renderAll();
+        // Sync Dashboard immediately
         EventBus.emit(EVENTS.JOURNAL_UPDATED, Store.journal);
         EventBus.emit(EVENTS.DASHBOARD_REFRESH);
     }

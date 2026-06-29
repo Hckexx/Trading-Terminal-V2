@@ -195,3 +195,9 @@ const CalculatorView = {
         navigator.clipboard.writeText(text).then(() => UI.showToast('Copied!')).catch(() => UI.showToast('Copy failed.'));
     }
 };
+// Auto-init when script loads (belt and suspenders)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => CalculatorView.init());
+} else {
+    CalculatorView.init();
+}

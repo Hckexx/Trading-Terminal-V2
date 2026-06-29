@@ -402,3 +402,11 @@
         font-size: 0.75rem;
     }
 }
+.stat-pill-time {
+    min-width: 65px;
+}
+
+.stat-pill-time .stat-value {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}

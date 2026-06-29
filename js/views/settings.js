@@ -45,14 +45,22 @@ const SettingsView = {
         this.elements.btnResetData = document.getElementById('btnResetData');
     },
 
-    bindEvents() {
-        // Trader name — auto-save on input
-        this.elements.traderName.addEventListener('input', () => {
-            Store.traderName = this.elements.traderName.value.trim();
-            Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
-            EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
-            EventBus.emit(EVENTS.DASHBOARD_REFRESH);
-        });
+   // Trader name — auto-save on input AND on blur
+this.elements.traderName.addEventListener('input', () => {
+    Store.traderName = this.elements.traderName.value.trim();
+    Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
+    EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
+    EventBus.emit(EVENTS.DASHBOARD_REFRESH);
+});
+
+// Also save on blur (when user clicks away)
+this.elements.traderName.addEventListener('blur', () => {
+    Store.traderName = this.elements.traderName.value.trim();
+    Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, Store.traderName);
+    EventBus.emit(EVENTS.TRADER_NAME_CHANGED, Store.traderName);
+    EventBus.emit(EVENTS.DASHBOARD_REFRESH);
+    UI.showToast('Name saved.');
+});
 
         // Open Add Account modal
         this.elements.btnAddAccount.addEventListener('click', () => this.openAccountModal());

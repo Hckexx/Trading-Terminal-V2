@@ -92,21 +92,22 @@
     color: var(--accent-red);
 }
 
-/* ---- Hamburger Button ---- */
-/* ---- Hamburger Button ---- */
-button.btn-hamburger,
+/* ---- Hamburger Button (hidden on desktop, visible on mobile) ---- */
 #btnDrawerOpen,
-.top-bar .btn-hamburger {
-    display: none !important;
+.btn-hamburger {
+    display: none;
     flex-direction: column;
     gap: 4px;
     padding: 8px;
     border-radius: var(--radius-sm);
     transition: background var(--transition-fast);
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-button.btn-hamburger:hover,
-#btnDrawerOpen:hover {
+#btnDrawerOpen:hover,
+.btn-hamburger:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -133,6 +134,7 @@ button.btn-hamburger:hover,
     flex-direction: column;
     transition: transform var(--transition-smooth);
     overflow-y: auto;
+    transform: translateX(0);
 }
 
 .drawer-header {
@@ -161,14 +163,21 @@ button.btn-hamburger:hover,
     letter-spacing: -0.3px;
 }
 
+/* Close button (hidden on desktop, visible on mobile) */
+#btnDrawerClose,
 .btn-drawer-close {
-    display: none; /* Hidden on desktop */
+    display: none;
     padding: var(--space-xs);
     border-radius: var(--radius-sm);
     color: var(--text-muted);
     transition: var(--transition-fast);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
 }
 
+#btnDrawerClose:hover,
 .btn-drawer-close:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
@@ -338,99 +347,49 @@ button.btn-hamburger:hover,
 }
 
 /* ==========================================================================
-   RESPONSIVE BEHAVIOR
+   RESPONSIVE — ONE SINGLE MOBILE BLOCK (no duplicates)
    ========================================================================== */
 
-/* ---- Desktop (default): Drawer always visible, no hamburger ---- */
-/* ==========================================================================
-   RESPONSIVE BEHAVIOR
-   ========================================================================== */
-
-/* Desktop: drawer always visible, NO hamburger, NO close button */
-@media (min-width: 769px) {
-    .nav-drawer {
-        transform: translateX(0) !important;
-    }
-    
-    #btnDrawerOpen,
-    .btn-hamburger,
-    button.btn-hamburger {
-        display: none !important;
-    }
-    
-    #btnDrawerClose,
-    .btn-drawer-close {
-        display: none !important;
-    }
-    
-    #drawerOverlay,
-    .drawer-overlay {
-        display: none !important;
-    }
-    
-    .app-main {
-        margin-left: var(--drawer-width) !important;
-    }
-}
-
-/* Mobile: drawer hidden, hamburger + close button visible */
 @media (max-width: 768px) {
-    .nav-drawer {
-        transform: translateX(-100%) !important;
-    }
-    
-    .nav-drawer.open {
-        transform: translateX(0) !important;
-    }
-    
-    #btnDrawerOpen,
-    .btn-hamburger,
-    button.btn-hamburger {
-        display: flex !important;
-    }
-    
-    #btnDrawerClose,
-    .btn-drawer-close {
-        display: flex !important;
-    }
-    
-    .app-main {
-        margin-left: 0 !important;
-    }
-}
-
-/* ---- Tablet & Mobile: Drawer hidden, hamburger visible ---- */
-@media (max-width: 768px) {
+    /* Hide drawer off-screen by default */
     .nav-drawer {
         transform: translateX(-100%);
     }
-    
+
+    /* Show drawer when open */
     .nav-drawer.open {
         transform: translateX(0);
         box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
     }
-    
+
+    /* Show hamburger */
+    #btnDrawerOpen,
     .btn-hamburger {
         display: flex;
     }
-    
+
+    /* Show close button inside drawer */
+    #btnDrawerClose,
     .btn-drawer-close {
         display: flex;
     }
-    
+
+    /* Main area takes full width */
     .app-main {
         margin-left: 0;
     }
-    
+
+    /* Slightly smaller title on mobile */
     .top-bar-title {
         font-size: 0.95rem;
     }
-    
+
+    /* Compact stats */
     .stat-pill {
         min-width: 60px;
         padding: var(--space-xs) var(--space-sm);
     }
-    
+
     .stat-pill .stat-value {
         font-size: 0.75rem;
     }

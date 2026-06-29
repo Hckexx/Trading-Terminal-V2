@@ -15,13 +15,13 @@ const CONFIG = {
     DEFAULT_ACCOUNT: {
         id: '',
         name: '',
+        broker: '',
         type: 'Demo',
+        currency: 'USD',
         balance: 0,
-        leverage: 100,
         dailyDDPercent: 5,
         overallDDPercent: 10,
         profitTargetPercent: 10,
-        minTradingDays: 0,
         isActive: false
     }
 };
@@ -80,6 +80,7 @@ function getGradeColor(grade) {
     const entry = GRADE_THRESHOLDS[grade];
     return entry ? entry.color : '';
 }
+
 // ==========================================
 // JOURNAL CONSTANTS
 // ==========================================

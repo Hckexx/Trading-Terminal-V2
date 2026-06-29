@@ -233,13 +233,13 @@
         </section>
 
 
-        <!-- ==================================== -->
-        <!-- VIEW: TRADE JOURNAL (V2 Priority)    -->
+               <!-- ==================================== -->
+        <!-- VIEW: TRADE JOURNAL                  -->
         <!-- ==================================== -->
         <section id="view-journal" class="view-container" role="tabpanel">
             <div class="view-header">
                 <h2 class="view-title">Trade Journal</h2>
-                <p class="view-subtitle">Every trade tells a story</p>
+                <p class="view-subtitle">Document every trade. Learn from every outcome.</p>
             </div>
 
             <!-- Journal Toolbar -->
@@ -249,53 +249,61 @@
                     <select id="journalFilterAccount" class="select-sm" aria-label="Filter by account">
                         <option value="all">All Accounts</option>
                     </select>
-                    <select id="journalFilterStatus" class="select-sm" aria-label="Filter by status">
-                        <option value="all">All Status</option>
-                        <option value="OPEN">Open</option>
-                        <option value="CLOSED">Closed</option>
-                    </select>
                     <select id="journalFilterResult" class="select-sm" aria-label="Filter by result">
                         <option value="all">All Results</option>
                         <option value="WIN">Win</option>
                         <option value="LOSS">Loss</option>
+                        <option value="BREAKEVEN">Breakeven</option>
+                    </select>
+                    <select id="journalFilterPair" class="select-sm" aria-label="Filter by pair">
+                        <option value="all">All Pairs</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Journal Summary -->
-            <div class="journal-summary" id="journalSummary">
-                <div class="summary-pill">
-                    <span>Total Trades</span>
-                    <strong id="journalTotalTrades">0</strong>
+            <!-- Journal Stats Bar -->
+            <div class="journal-stats-bar" id="journalStatsBar">
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Total Trades</span>
+                    <span class="journal-stat-value" id="journalTotalTrades">0</span>
                 </div>
-                <div class="summary-pill">
-                    <span>Win Rate</span>
-                    <strong id="journalWinRate">--</strong>
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Win Rate</span>
+                    <span class="journal-stat-value" id="journalWinRate">--</span>
                 </div>
-                <div class="summary-pill">
-                    <span>Total P&L</span>
-                    <strong id="journalTotalPnL">$0.00</strong>
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Total P&L</span>
+                    <span class="journal-stat-value" id="journalTotalPnL">$0.00</span>
                 </div>
-                <div class="summary-pill">
-                    <span>Avg R:R</span>
-                    <strong id="journalAvgRR">--</strong>
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Avg R:R</span>
+                    <span class="journal-stat-value" id="journalAvgRR">--</span>
+                </div>
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Best Trade</span>
+                    <span class="journal-stat-value profit-text" id="journalBestTrade">--</span>
+                </div>
+                <div class="journal-stat">
+                    <span class="journal-stat-label">Worst Trade</span>
+                    <span class="journal-stat-value risk-text" id="journalWorstTrade">--</span>
                 </div>
             </div>
 
-            <!-- Journal Entries -->
+            <!-- Journal Entries List -->
             <div class="journal-entries" id="journalEntries">
-                <p class="empty-state">No trades yet. Click "+ New Trade" to log your first one.</p>
+                <p class="empty-state">No trades logged yet. Start building your edge.</p>
             </div>
 
-            <!-- New Trade Modal (Hidden by default) -->
+            <!-- New Trade Modal -->
             <div id="tradeModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-                <div class="modal-container">
+                <div class="modal-container modal-journal">
                     <div class="modal-header">
-                        <h3 id="modalTitle">New Journal Entry</h3>
+                        <h3 id="modalTitle">New Trade Entry</h3>
                         <button id="btnModalClose" class="btn-icon" aria-label="Close">✕</button>
                     </div>
                     <form id="tradeForm" class="modal-body" autocomplete="off">
-                        <!-- Account Selection -->
+                        
+                        <!-- Row 1: Account & Date -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="tradeAccount">Account</label>
@@ -309,99 +317,241 @@
                             </div>
                         </div>
 
-                        <!-- Trade Details -->
+                        <!-- Row 2: Pair & Direction -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="tradePair">Pair / Instrument</label>
-                                <input type="text" id="tradePair" placeholder="e.g. XAUUSD" required>
+                                <label for="tradePair">Pair</label>
+                                <select id="tradePair" required>
+                                    <option value="">Select Pair</option>
+                                    <option value="XAUUSD">XAUUSD (Gold)</option>
+                                    <option value="EURUSD">EURUSD</option>
+                                    <option value="GBPUSD">GBPUSD</option>
+                                    <option value="BTCUSD">BTCUSD</option>
+                                    <option value="US30">US30 (Dow)</option>
+                                    <option value="NAS100">NAS100 (Nasdaq)</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="tradeDirection">Direction</label>
+                                <label>Direction</label>
                                 <div class="direction-toggle-modal">
-                                    <button type="button" id="modalBtnBuy" class="dir-btn active" data-dir="BUY">Buy</button>
-                                    <button type="button" id="modalBtnSell" class="dir-btn" data-dir="SELL">Sell</button>
+                                    <button type="button" id="modalBtnBuy" class="dir-btn-modal active" data-dir="BUY">Buy</button>
+                                    <button type="button" id="modalBtnSell" class="dir-btn-modal" data-dir="SELL">Sell</button>
                                 </div>
                                 <input type="hidden" id="tradeDirectionModal" value="BUY">
                             </div>
                         </div>
 
-                        <!-- Price Levels -->
+                        <!-- Row 3: Result & P&L & Risk -->
                         <div class="form-row form-row-3">
                             <div class="form-group">
-                                <label for="tradeEntry">Entry Price</label>
-                                <input type="number" id="tradeEntry" step="any" placeholder="0.00" required>
+                                <label for="tradeResult">Result</label>
+                                <select id="tradeResult" required>
+                                    <option value="">Select</option>
+                                    <option value="WIN">Win</option>
+                                    <option value="LOSS">Loss</option>
+                                    <option value="BREAKEVEN">Breakeven</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradePnL">P&L ($)</label>
+                                <input type="number" id="tradePnL" step="any" placeholder="+520 or -250" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeRiskPercent">Risk (%)</label>
+                                <input type="number" id="tradeRiskPercent" step="any" placeholder="0.5" min="0" max="100">
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Entry, SL, TP, Lot Size -->
+                        <div class="form-row form-row-4">
+                            <div class="form-group">
+                                <label for="tradeEntry">Entry</label>
+                                <input type="number" id="tradeEntry" step="any" placeholder="0.00">
                             </div>
                             <div class="form-group">
                                 <label for="tradeSL">Stop Loss</label>
-                                <input type="number" id="tradeSL" step="any" placeholder="0.00" required>
+                                <input type="number" id="tradeSL" step="any" placeholder="0.00">
                             </div>
                             <div class="form-group">
                                 <label for="tradeTP">Take Profit</label>
                                 <input type="number" id="tradeTP" step="any" placeholder="0.00">
                             </div>
-                        </div>
-
-                        <!-- Position Details -->
-                        <div class="form-row form-row-3">
                             <div class="form-group">
                                 <label for="tradeLotSize">Lot Size</label>
-                                <input type="number" id="tradeLotSize" step="any" placeholder="0.00" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="tradeRisk">Risk Amount ($)</label>
-                                <input type="number" id="tradeRisk" step="any" placeholder="0.00">
-                            </div>
-                            <div class="form-group">
-                                <label for="tradeChecklistScore">Checklist Score</label>
-                                <input type="number" id="tradeChecklistScore" min="0" max="100" placeholder="0-100">
+                                <input type="number" id="tradeLotSize" step="any" placeholder="0.00">
                             </div>
                         </div>
 
-                        <!-- Trade Status -->
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Status</label>
-                                <div class="status-toggle">
-                                    <button type="button" id="modalBtnOpen" class="dir-btn active" data-status="OPEN">Open</button>
-                                    <button type="button" id="modalBtnClosed" class="dir-btn" data-status="CLOSED">Closed</button>
-                                </div>
-                                <input type="hidden" id="tradeStatus" value="OPEN">
-                            </div>
-                        </div>
-
-                        <!-- Close Details (Shown only if CLOSED) -->
-                        <div id="closeDetailsSection" class="form-row form-row-3 hidden">
-                            <div class="form-group">
-                                <label for="tradeResult">Result</label>
-                                <select id="tradeResult">
-                                    <option value="">Select</option>
-                                    <option value="WIN">Win ✅</option>
-                                    <option value="LOSS">Loss ❌</option>
-                                    <option value="BREAKEVEN">Breakeven ➖</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="tradePnL">Actual P&L ($)</label>
-                                <input type="number" id="tradePnL" step="any" placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <!-- Notes -->
+                        <!-- Row 5: Rating -->
                         <div class="form-group">
-                            <label for="tradeNotes">Notes</label>
-                            <textarea id="tradeNotes" rows="2" placeholder="What happened? What did you learn?"></textarea>
+                            <label>Trade Rating</label>
+                            <div class="rating-stars" id="ratingStars">
+                                <button type="button" class="star-btn" data-rating="1" title="Poor">☆</button>
+                                <button type="button" class="star-btn" data-rating="2" title="Below Average">☆</button>
+                                <button type="button" class="star-btn" data-rating="3" title="Average">☆</button>
+                                <button type="button" class="star-btn" data-rating="4" title="Good">☆</button>
+                                <button type="button" class="star-btn" data-rating="5" title="Excellent">☆</button>
+                            </div>
+                            <input type="hidden" id="tradeRating" value="0">
+                        </div>
+
+                        <div class="form-divider"></div>
+
+                        <!-- Row 6: Reflection (Clean & Professional) -->
+                        <div class="form-group">
+                            <label for="tradeWentWell">What went well?</label>
+                            <textarea id="tradeWentWell" rows="2" placeholder="Discipline, patience, good entry..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tradeMistakes">Mistakes made?</label>
+                            <textarea id="tradeMistakes" rows="2" placeholder="Entered too early, moved SL, overconfidence..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tradeLesson">Lesson learned</label>
+                            <textarea id="tradeLesson" rows="2" placeholder="What will you do differently next time?"></textarea>
                         </div>
 
                         <!-- Form Actions -->
                         <div class="modal-actions">
                             <button type="button" id="btnModalCancel" class="btn btn-secondary">Cancel</button>
-                            <button type="submit" id="btnModalSave" class="btn btn-primary">Save Entry</button>
+                            <button type="submit" id="btnModalSave" class="btn btn-primary">Save Trade</button>
                         </div>
                     </form>
                 </div>
             </div>
-        </section>
 
+            <!-- Edit Trade Modal (Same structure, different ID) -->
+            <div id="editTradeModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+                <div class="modal-container modal-journal">
+                    <div class="modal-header">
+                        <h3>Edit Trade</h3>
+                        <button id="btnEditModalClose" class="btn-icon" aria-label="Close">✕</button>
+                    </div>
+                    <form id="editTradeForm" class="modal-body" autocomplete="off">
+                        <input type="hidden" id="editTradeId">
+                        <!-- Same fields as New Trade form -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editTradeAccount">Account</label>
+                                <select id="editTradeAccount" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradeDate">Date</label>
+                                <input type="date" id="editTradeDate" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editTradePair">Pair</label>
+                                <select id="editTradePair" required>
+                                    <option value="">Select Pair</option>
+                                    <option value="XAUUSD">XAUUSD (Gold)</option>
+                                    <option value="EURUSD">EURUSD</option>
+                                    <option value="GBPUSD">GBPUSD</option>
+                                    <option value="BTCUSD">BTCUSD</option>
+                                    <option value="US30">US30 (Dow)</option>
+                                    <option value="NAS100">NAS100 (Nasdaq)</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Direction</label>
+                                <div class="direction-toggle-modal">
+                                    <button type="button" id="editModalBtnBuy" class="dir-btn-modal active" data-dir="BUY">Buy</button>
+                                    <button type="button" id="editModalBtnSell" class="dir-btn-modal" data-dir="SELL">Sell</button>
+                                </div>
+                                <input type="hidden" id="editTradeDirection" value="BUY">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="editTradeResult">Result</label>
+                                <select id="editTradeResult" required>
+                                    <option value="">Select</option>
+                                    <option value="WIN">Win</option>
+                                    <option value="LOSS">Loss</option>
+                                    <option value="BREAKEVEN">Breakeven</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradePnL">P&L ($)</label>
+                                <input type="number" id="editTradePnL" step="any" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradeRiskPercent">Risk (%)</label>
+                                <input type="number" id="editTradeRiskPercent" step="any" min="0" max="100">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-4">
+                            <div class="form-group">
+                                <label for="editTradeEntry">Entry</label>
+                                <input type="number" id="editTradeEntry" step="any">
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradeSL">Stop Loss</label>
+                                <input type="number" id="editTradeSL" step="any">
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradeTP">Take Profit</label>
+                                <input type="number" id="editTradeTP" step="any">
+                            </div>
+                            <div class="form-group">
+                                <label for="editTradeLotSize">Lot Size</label>
+                                <input type="number" id="editTradeLotSize" step="any">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Trade Rating</label>
+                            <div class="rating-stars" id="editRatingStars">
+                                <button type="button" class="star-btn" data-rating="1">☆</button>
+                                <button type="button" class="star-btn" data-rating="2">☆</button>
+                                <button type="button" class="star-btn" data-rating="3">☆</button>
+                                <button type="button" class="star-btn" data-rating="4">☆</button>
+                                <button type="button" class="star-btn" data-rating="5">☆</button>
+                            </div>
+                            <input type="hidden" id="editTradeRating" value="0">
+                        </div>
+                        <div class="form-divider"></div>
+                        <div class="form-group">
+                            <label for="editTradeWentWell">What went well?</label>
+                            <textarea id="editTradeWentWell" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTradeMistakes">Mistakes made?</label>
+                            <textarea id="editTradeMistakes" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTradeLesson">Lesson learned</label>
+                            <textarea id="editTradeLesson" rows="2"></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" id="btnEditModalCancel" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Update Trade</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Trade Detail Modal (Read-only view) -->
+            <div id="tradeDetailModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+                <div class="modal-container modal-journal">
+                    <div class="modal-header">
+                        <h3 id="detailModalTitle">Trade Details</h3>
+                        <button id="btnDetailModalClose" class="btn-icon" aria-label="Close">✕</button>
+                    </div>
+                    <div class="modal-body" id="tradeDetailContent">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="btnDetailEdit" class="btn btn-primary">Edit Trade</button>
+                        <button type="button" id="btnDetailDelete" class="btn btn-danger">Delete Trade</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- ==================================== -->
         <!-- VIEW: TOOLS                          -->

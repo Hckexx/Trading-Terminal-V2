@@ -24,10 +24,14 @@
         // Initialize Settings view
         SettingsView.init();
 
+       // Initialize Calculator view
+CalculatorView.init();
+
         // Subscribe to journal updates for dashboard refresh
         EventBus.on(EVENTS.JOURNAL_UPDATED, () => {
             if (Router.currentView === 'dashboard') {
                 DashboardView.refresh();
+               
             }
         });
 
@@ -70,5 +74,3 @@
         init();
     }
 })();
-// Initialize Calculator view
-CalculatorView.init();

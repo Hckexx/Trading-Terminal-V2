@@ -218,21 +218,21 @@ const JournalView = {
     // NEW TRADE MODAL
     // ==========================================
     openNewTradeModal() {
-    // Check if accounts exist
-    if (!Store.accounts || Store.accounts.length === 0) {
-        UI.showToast('Please add an account in Settings first.');
-        return; // Don't redirect — just show message
-    }
+        if (!Store.accounts || Store.accounts.length === 0) {
+            UI.showToast('Please add an account in Settings first.');
+            return;
+        }
 
-    this.elements.modalTitle.textContent = 'New Trade Entry';
-    this.elements.tradeForm.reset();
-    this.populateAccountDropdown(this.elements.tradeAccount);
-    this.setDefaultDate();
-    this.setDirection('BUY', 'new');
-    this.setRating(0, 'new');
-    this.elements.tradeRating.value = 0;
-    this.openModal(this.elements.tradeModal);
-},
+        this.elements.modalTitle.textContent = 'New Trade Entry';
+        this.elements.tradeForm.reset();
+        this.populateAccountDropdown(this.elements.tradeAccount);
+        this.setDefaultDate();
+        this.setDirection('BUY', 'new');
+        this.setRating(0, 'new');
+        this.elements.tradeRating.value = 0;
+        this.openModal(this.elements.tradeModal);
+    },
+
     setDefaultDate() {
         const today = new Date().toISOString().split('T')[0];
         if (this.elements.tradeDate) this.elements.tradeDate.value = today;
@@ -278,6 +278,7 @@ const JournalView = {
         trade.id = UI.generateId();
         trade.createdAt = new Date().toISOString();
 
+        if (!Store.journal) Store.journal = [];
         Store.journal.unshift(trade);
         this.persistAndRefresh();
         this.closeModal(this.elements.tradeModal);
@@ -365,7 +366,7 @@ const JournalView = {
 
         this.viewingTradeId = tradeId;
 
-        const account = Store.accounts.find(a => a.id === trade.accountId);
+        const account = Store.accounts ? Store.accounts.find(a => a.id === trade.accountId) : null;
         const accountName = account ? account.name : 'Unknown Account';
         const resultClass = trade.result === 'WIN' ? 'win' : trade.result === 'LOSS' ? 'loss' : '';
 
@@ -463,27 +464,11 @@ const JournalView = {
             ? parseFloat(this.elements.tradePnL.value)
             : parseFloat(this.elements.editTradePnL.value);
 
-        // Validation
-        if (!accountId) {
-            UI.showToast('Please select an account.');
-            return null;
-        }
-        if (!date) {
-            UI.showToast('Please select a date.');
-            return null;
-        }
-        if (!pair) {
-            UI.showToast('Please select a pair.');
-            return null;
-        }
-        if (!result) {
-            UI.showToast('Please select a result.');
-            return null;
-        }
-        if (isNaN(pnl)) {
-            UI.showToast('Please enter a valid P&L amount.');
-            return null;
-        }
+        if (!accountId) { UI.showToast('Please select an account.'); return null; }
+        if (!date) { UI.showToast('Please select a date.'); return null; }
+        if (!pair) { UI.showToast('Please select a pair.'); return null; }
+        if (!result) { UI.showToast('Please select a result.'); return null; }
+        if (isNaN(pnl)) { UI.showToast('Please enter a valid P&L amount.'); return null; }
 
         return {
             accountId,
@@ -520,6 +505,7 @@ const JournalView = {
     // FILTERING
     // ==========================================
     getFilteredTrades() {
+        if (!Store.journal) return [];
         let trades = [...Store.journal];
 
         if (this.currentFilters.account !== 'all') {
@@ -549,11 +535,13 @@ const JournalView = {
         const accountFilter = this.elements.filterAccount;
         const currentAccountFilter = accountFilter.value;
         accountFilter.innerHTML = '<option value="all">All Accounts</option>';
-        Store.accounts.forEach(acc => {
-            const selected = currentAccountFilter === acc.id ? 'selected' : '';
-            accountFilter.innerHTML += `<option value="${acc.id}" ${selected}>${UI.escapeHTML(acc.name)}</option>`;
-        });
-        if (currentAccountFilter && Store.accounts.some(a => a.id === currentAccountFilter)) {
+        if (Store.accounts && Store.accounts.length > 0) {
+            Store.accounts.forEach(acc => {
+                const selected = currentAccountFilter === acc.id ? 'selected' : '';
+                accountFilter.innerHTML += `<option value="${acc.id}" ${selected}>${UI.escapeHTML(acc.name)}</option>`;
+            });
+        }
+        if (currentAccountFilter && Store.accounts && Store.accounts.some(a => a.id === currentAccountFilter)) {
             accountFilter.value = currentAccountFilter;
         } else {
             accountFilter.value = 'all';
@@ -566,14 +554,17 @@ const JournalView = {
         pairFilter.innerHTML = '<option value="all">All Pairs</option>';
         const usedPairs = new Set();
         JOURNAL_PAIRS.forEach(p => usedPairs.add(p));
-        Store.journal.forEach(t => { if (t.pair) usedPairs.add(t.pair); });
-        [...usedPairs].sort().forEach(p => {
+        if (Store.journal && Store.journal.length > 0) {
+            Store.journal.forEach(t => { if (t.pair) usedPairs.add(t.pair); });
+        }
+        const pairsArray = [...usedPairs].sort();
+        pairsArray.forEach(p => {
             if (p) {
                 const selected = currentPairFilter === p ? 'selected' : '';
                 pairFilter.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
             }
         });
-        if (currentPairFilter && [...usedPairs].has(currentPairFilter)) {
+        if (currentPairFilter && usedPairs.has(currentPairFilter)) {
             pairFilter.value = currentPairFilter;
         } else {
             pairFilter.value = 'all';
@@ -584,7 +575,7 @@ const JournalView = {
     populateAccountDropdown(selectElement) {
         if (!selectElement) return;
         selectElement.innerHTML = '<option value="">Select Account</option>';
-        if (Store.accounts.length === 0) {
+        if (!Store.accounts || Store.accounts.length === 0) {
             selectElement.innerHTML += '<option value="" disabled>No accounts — add one in Settings</option>';
         } else {
             Store.accounts.forEach(acc => {
@@ -675,7 +666,7 @@ const JournalView = {
     },
 
     buildEntryCard(trade) {
-        const account = Store.accounts.find(a => a.id === trade.accountId);
+        const account = Store.accounts ? Store.accounts.find(a => a.id === trade.accountId) : null;
         const accountName = account ? account.name : 'Unknown';
         const pnl = trade.pnl || 0;
         const pnlFormatted = FORMATTERS.currency.format(Math.abs(pnl));

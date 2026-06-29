@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Settings View (Redesigned)
+   TRADETERMINAL V2 — Settings View (Updated)
    Workspace + Trading Accounts + Data Management
    ========================================================================== */
 
@@ -50,118 +50,47 @@ const SettingsView = {
     },
 
     bindEvents() {
-    // Save workspace button
-    const btnSave = document.getElementById('btnSaveWorkspace');
-    if (btnSave) {
-        btnSave.addEventListener('click', () => {
-            this.saveWorkspaceSettings();
-            UI.showToast('Settings applied.');
+        // Save workspace button
+        const btnSave = document.getElementById('btnSaveWorkspace');
+        if (btnSave) {
+            btnSave.addEventListener('click', () => {
+                this.saveWorkspaceSettings();
+                UI.showToast('Settings applied.');
+            });
+        }
+
+        // Workspace — also save on blur/change
+        this.elements.displayName.addEventListener('blur', () => this.saveWorkspaceSettings());
+        this.elements.theme.addEventListener('change', () => this.saveWorkspaceSettings());
+        this.elements.currency.addEventListener('change', () => this.saveWorkspaceSettings());
+        this.elements.timezone.addEventListener('change', () => this.saveWorkspaceSettings());
+
+        // Accounts
+        this.elements.btnAddAccount.addEventListener('click', () => this.openAccountModal());
+        this.elements.btnAccountModalClose.addEventListener('click', () => this.closeAccountModal());
+        this.elements.btnAccountModalCancel.addEventListener('click', () => this.closeAccountModal());
+        this.elements.accountModal.addEventListener('click', (e) => {
+            if (e.target === this.elements.accountModal) this.closeAccountModal();
         });
-    }
+        this.elements.accountForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveAccount();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this.closeAccountModal();
+        });
 
-    // Workspace — also save on input/blur
-    this.elements.displayName.addEventListener('blur', () => this.saveWorkspaceSettings());
-    this.elements.theme.addEventListener('change', () => this.saveWorkspaceSettings());
-    this.elements.currency.addEventListener('change', () => this.saveWorkspaceSettings());
-    this.elements.timezone.addEventListener('change', () => this.saveWorkspaceSettings());
+        // Data
+        this.elements.btnExportData.addEventListener('click', () => this.exportData());
+        this.elements.btnImportData.addEventListener('click', () => this.elements.importFileInput.click());
+        this.elements.importFileInput.addEventListener('change', (e) => this.importData(e));
+        this.elements.btnResetData.addEventListener('click', () => this.resetAllData());
 
-    // Accounts
-    this.elements.btnAddAccount.addEventListener('click', () => this.openAccountModal());
-    this.elements.btnAccountModalClose.addEventListener('click', () => this.closeAccountModal());
-    this.elements.btnAccountModalCancel.addEventListener('click', () => this.closeAccountModal());
-    this.elements.accountModal.addEventListener('click', (e) => {
-        if (e.target === this.elements.accountModal) this.closeAccountModal();
-    });
-    this.elements.accountForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.saveAccount();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') this.closeAccountModal();
-    });
-
-    // Data
-    this.elements.btnExportData.addEventListener('click', () => this.exportData());
-    this.elements.btnImportData.addEventListener('click', () => this.elements.importFileInput.click());
-    this.elements.importFileInput.addEventListener('change', (e) => this.importData(e));
-    this.elements.btnResetData.addEventListener('click', () => this.resetAllData());
-
-    // Re-render on view change
-    EventBus.on(EVENTS.VIEW_CHANGED, (data) => {
-        if (data.view === 'settings') this.render();
-    });
-},
-
-saveWorkspaceSettings() {
-    const displayName = this.elements.displayName.value.trim();
-    const settings = {
-        displayName: displayName,
-        theme: this.elements.theme.value,
-        currency: this.elements.currency.value,
-        timezone: this.elements.timezone.value
-    };
-    Storage.save(CONFIG.STORAGE_KEYS.SETTINGS, settings);
-
-    // Sync display name to Store immediately
-    Store.traderName = displayName;
-    Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, displayName);
-    EventBus.emit(EVENTS.TRADER_NAME_CHANGED, displayName);
-    EventBus.emit(EVENTS.DASHBOARD_REFRESH);
-},
-
-// Update saveAccount to enforce 10 account limit
-saveAccount() {
-    const name = this.elements.accountName.value.trim();
-    const broker = this.elements.accountBroker.value.trim();
-    const type = this.elements.accountType.value;
-    const currency = this.elements.accountCurrency.value;
-    const balance = parseFloat(this.elements.accountBalance.value);
-    const dailyDD = parseFloat(this.elements.accountDailyDD.value) || 0;
-    const overallDD = parseFloat(this.elements.accountOverallDD.value) || 0;
-    const profitTarget = parseFloat(this.elements.accountProfitTarget.value) || 0;
-
-    if (!name) { UI.showToast('Please enter an account name.'); return; }
-    if (isNaN(balance) || balance <= 0) { UI.showToast('Please enter a valid balance.'); return; }
-
-    // Check account limit for new accounts
-    if (!this.editingAccountId && Store.accounts.length >= 10) {
-        UI.showToast('Maximum 10 accounts allowed. Delete an existing account first.');
-        return;
-    }
-
-    const accountData = {
-        id: this.editingAccountId || UI.generateId(),
-        name,
-        broker,
-        type,
-        currency,
-        balance,
-        dailyDDPercent: dailyDD,
-        overallDDPercent: overallDD,
-        profitTargetPercent: profitTarget,
-        isActive: false
-    };
-
-    if (this.editingAccountId) {
-        const index = Store.accounts.findIndex(a => a.id === this.editingAccountId);
-        if (index !== -1) {
-            accountData.isActive = Store.accounts[index].isActive;
-            Store.accounts[index] = accountData;
-        }
-        UI.showToast('Account updated.');
-    } else {
-        if (Store.accounts.length === 0) {
-            accountData.isActive = true;
-            Store.activeAccountId = accountData.id;
-            Storage.save(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT, accountData.id);
-        }
-        Store.accounts.push(accountData);
-        UI.showToast('Account added.');
-    }
-
-    this.persistAndNotify();
-    this.closeAccountModal();
-},
+        // Re-render on view change
+        EventBus.on(EVENTS.VIEW_CHANGED, (data) => {
+            if (data.view === 'settings') this.render();
+        });
+    },
 
     // ==========================================
     // WORKSPACE
@@ -178,18 +107,19 @@ saveAccount() {
     },
 
     saveWorkspaceSettings() {
+        const displayName = this.elements.displayName.value.trim();
         const settings = {
-            displayName: this.elements.displayName.value.trim(),
+            displayName: displayName,
             theme: this.elements.theme.value,
             currency: this.elements.currency.value,
             timezone: this.elements.timezone.value
         };
         Storage.save(CONFIG.STORAGE_KEYS.SETTINGS, settings);
 
-        // Sync display name to Store
-        Store.traderName = settings.displayName;
-        Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, settings.displayName);
-        EventBus.emit(EVENTS.TRADER_NAME_CHANGED, settings.displayName);
+        // Sync display name to Store immediately
+        Store.traderName = displayName;
+        Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, displayName);
+        EventBus.emit(EVENTS.TRADER_NAME_CHANGED, displayName);
         EventBus.emit(EVENTS.DASHBOARD_REFRESH);
     },
 
@@ -288,6 +218,12 @@ saveAccount() {
     // ACCOUNT MODAL
     // ==========================================
     openAccountModal(accountId = null) {
+        // Check limit for new accounts
+        if (!accountId && Store.accounts.length >= 10) {
+            UI.showToast('Maximum 10 accounts allowed. Delete an existing account first.');
+            return;
+        }
+
         this.editingAccountId = accountId;
 
         if (accountId) {
@@ -307,7 +243,7 @@ saveAccount() {
             this.elements.accountModalTitle.textContent = 'Add Account';
             this.elements.accountForm.reset();
             this.elements.accountFormId.value = '';
-            this.elements.accountCurrency.value = Store.settings?.currency || 'USD';
+            this.elements.accountCurrency.value = 'USD';
         }
 
         this.elements.accountModal.classList.remove('hidden');
@@ -332,6 +268,12 @@ saveAccount() {
 
         if (!name) { UI.showToast('Please enter an account name.'); return; }
         if (isNaN(balance) || balance <= 0) { UI.showToast('Please enter a valid balance.'); return; }
+
+        // Check account limit for new accounts
+        if (!this.editingAccountId && Store.accounts.length >= 10) {
+            UI.showToast('Maximum 10 accounts allowed. Delete an existing account first.');
+            return;
+        }
 
         const accountData = {
             id: this.editingAccountId || UI.generateId(),

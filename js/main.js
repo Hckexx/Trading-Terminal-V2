@@ -18,6 +18,9 @@
         // Initialize Dashboard view (it's the default)
         DashboardView.init();
 
+       // Initialize Journal view
+        JournalView.init();
+       
         // Subscribe to journal updates for dashboard refresh
         EventBus.on(EVENTS.JOURNAL_UPDATED, () => {
             if (Router.currentView === 'dashboard') {

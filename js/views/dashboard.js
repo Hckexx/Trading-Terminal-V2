@@ -1,14 +1,17 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Dashboard View (Fixed)
+   TRADETERMINAL V2 — Dashboard View (Updated with Time)
    ========================================================================== */
 
 const DashboardView = {
     elements: {},
+    _timeInterval: null,
 
     init() {
         this.cacheDOM();
         this.bindEvents();
         this.refresh();
+        // Update time every 30 seconds
+        this._timeInterval = setInterval(() => this.updateTime(), 30000);
     },
 
     cacheDOM() {
@@ -30,6 +33,7 @@ const DashboardView = {
             // Recent trades
             recentTrades: document.getElementById('dashboardRecentTrades'),
             // Header stats
+            headerTime: document.getElementById('headerTime'),
             headerBalance: document.getElementById('headerBalance'),
             headerTodayPnL: document.getElementById('headerTodayPnL'),
             headerRiskStatus: document.getElementById('headerRiskStatus'),
@@ -48,6 +52,7 @@ const DashboardView = {
 
     refresh() {
         this.updateGreeting();
+        this.updateTime();
         this.loadAccountInfo();
         this.calculateMetrics();
         this.renderRecentTrades();
@@ -65,6 +70,18 @@ const DashboardView = {
         }
     },
 
+    updateTime() {
+        if (this.elements.headerTime) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            this.elements.headerTime.textContent = timeStr;
+        }
+    },
+
     loadAccountInfo() {
         const activeAccount = this.getActiveAccount();
 
@@ -76,10 +93,12 @@ const DashboardView = {
             return;
         }
 
-        // Account type badge
+        // Account type badge — updated for new types
         const typeLabels = {
             'Live': '🟢 Live',
             'Demo': '🔵 Demo',
+            'Prop Challenge': '🟡 Challenge',
+            'Funded': '🟣 Funded',
             'Prop Firm': '🟣 Prop Firm'
         };
         this.elements.accountType.textContent = typeLabels[activeAccount.type] || activeAccount.type;

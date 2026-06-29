@@ -3,51 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradeTerminal | Risk Management</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>TradeTerminal — Professional Trading Risk Management Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/calculator.css">
+    <link rel="stylesheet" href="css/checklist.css">
+    <link rel="stylesheet" href="css/journal.css">
+    <link rel="stylesheet" href="css/tools.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <header>
-        <h1>TradeTerminal <span class="subtitle">Professional Risk Workspace</span></h1>
-    </header>
 
-    <main id="app">
-        <section id="account-config" class="card">
-            <h2>Account Configuration</h2>
-            <div class="grid-form">
-                <select id="acc-type">
-                    <option value="live">Live Account</option>
-                    <option value="demo">Demo Account</option>
-                    <option value="prop">Prop Firm</option>
-                </select>
-                <input type="number" id="acc-balance" placeholder="Account Balance ($)">
-                </div>
-        </section>
-
-        <section id="calculator" class="card">
-            <h2>Position Size Calculator</h2>
-            <div class="grid-form">
-                <input type="text" id="calc-pair" placeholder="Pair (e.g., EURUSD)">
-                <select id="calc-direction">
-                    <option value="buy">BUY</option>
-                    <option value="sell">SELL</option>
-                </select>
-                <input type="number" id="calc-entry" placeholder="Entry Price">
-                <input type="number" id="calc-sl" placeholder="Stop Loss">
-                <input type="number" id="calc-tp" placeholder="Take Profit (Optional)">
-                <input type="number" id="calc-risk-pct" placeholder="Risk %">
+    <!-- ========================================== -->
+    <!-- NAVIGATION DRAWER (Slide-out Sidebar)       -->
+    <!-- ========================================== -->
+    <aside id="navDrawer" class="nav-drawer" aria-label="Main navigation">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">TradeTerminal</span>
             </div>
-            <div id="calc-results" class="results-grid">
-                </div>
-        </section>
-        
-        <section id="dashboard" class="card">
-            <h2>Risk Dashboard</h2>
-            <div id="dash-grid" class="dashboard-grid">
-                </div>
-        </section>
-    </main>
+            <button id="btnDrawerClose" class="btn-icon btn-drawer-close" aria-label="Close navigation">
+                <span class="icon-close">✕</span>
+            </button>
+        </div>
 
-    <script type="module" src="js/main.js"></script>
+        <nav class="drawer-nav">
+            <ul class="nav-list">
+                <li class="nav-item active" id="nav-dashboard">
+                    <button class="nav-link" data-view="dashboard" aria-current="page">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </button>
+                </li>
+                <li class="nav-item" id="nav-calculator">
+                    <button class="nav-link" data-view="calculator">
+                        <span class="nav-icon">🧮</span>
+                        <span class="nav-label">Position Calculator</span>
+                    </button>
+                </li>
+                <li class="nav-item" id="nav-checkins">
+                    <button class="nav-link" data-view="checklist">
+                        <span class="nav-icon">✅</span>
+                        <span class="nav-label">Trade Checklist</span>
+                    </button>
+                </li>
+                <li class="nav-item" id="nav-journal">
+                    <button class="nav-link" data-view="journal">
+                        <span class="nav-icon">📓</span>
+                        <span class="nav-label">Trade Journal</span>
+                    </button>
+                </li>
+                <li class="nav-divider" role="separator"></li>
+                <li class="nav-item" id="nav-tools">
+                    <button class="nav-link" data-view="tools">
+                        <span class="nav-icon">🛠️</span>
+                        <span class="nav-label">Tools</span>
+                    </button>
+                </li>
+                <li class="nav-item" id="nav-settings">
+                    <button class="nav-link" data-view="settings">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-label">Settings</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="drawer-footer">
+            <span class="version-text">v2.0</span>
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- DRAWER OVERLAY (closes drawer on click)     -->
+    <!-- ========================================== -->
+    <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
+
+
+    <!-- ========================================== -->
+    <!-- MAIN APPLICATION AREA                       -->
+    <!-- ========================================== -->
+    <div class="app-main">
+
+        <!-- ====================================== -->
+        <!-- TOP BAR (Always Visible)               -->
+        <!-- ====================================== -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button id="btnDrawerOpen" class="btn-icon btn-hamburger" aria-label="Open navigation">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <h1 class="top-bar-title">TradeTerminal</h1>
+            </div>
+
+            <div class="top-bar-stats" id="topBarStats">
+                <!-- Populated by JS -->
+                <div class="stat-pill">
+                    <span class="stat-label">Balance</span>
+                    <span class="stat-value" id="headerBalance">$0.00</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-label">Today</span>
+                    <span class="stat-value" id="headerTodayPnL">$0.00</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value risk-indicator" id="headerRiskStatus">--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ====================================== -->
+        <!-- VIEW CONTAINERS (Only one visible)     -->
+        <!-- ====================================== -->
+
+        <!-- ==================================== -->
+        <!-- VIEW: DASHBOARD (Default)             -->
+        <!-- ==================================== -->
+        <main id="view-dashboard" class="view-container active" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Dashboard</h2>
+                <p class="view-subtitle" id="dashboardGreeting">Welcome back</p>
+            </div>
+
+            <!-- Account Overview Cards -->
+            <section class="dashboard-grid" id="dashboardAccountCards">
+                <!-- Account Type Card -->
+                <div class="dash-card dash-card-accent">
+                    <span class="dash-card-label">Account</span>
+                    <span class="dash-card-value" id="dashAccountType">Not Set</span>
+                    <span class="dash-card-sub" id="dashAccountName">Configure in Settings</span>
+                </div>
+
+                <!-- Balance Card -->
+                <div class="dash-card">
+                    <span class="dash-card-label">Balance</span>
+                    <span class="dash-card-value" id="dashBalance">$0.00</span>
+                </div>
+
+                <!-- Today's P&L Card -->
+                <div class="dash-card">
+                    <span class="dash-card-label">Today's P&L</span>
+                    <span class="dash-card-value" id="dashTodayPnL">$0.00</span>
+                </div>
+
+                <!-- Win Rate Card -->
+                <div class="dash-card">
+                    <span class="dash-card-label">Win Rate</span>
+                    <span class="dash-card-value" id="dashWinRate">--</span>
+                </div>
+            </section>
+
+            <!-- Risk Metrics Row -->
+            <section class="dashboard-grid dashboard-grid-3col" id="dashboardRiskCards">
+                <!-- Daily DD Card -->
+                <div class="dash-card">
+                    <span class="dash-card-label">Daily DD Remaining</span>
+                    <span class="dash-card-value" id="dashDailyDD">--</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="dashDailyDDFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Overall DD Card -->
+                <div class="dash-card">
+                    <span class="dash-card-label">Overall DD Remaining</span>
+                    <span class="dash-card-value" id="dashOverallDD">--</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="dashOverallDDFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Risk Status Card -->
+                <div class="dash-card dash-card-status" id="dashRiskStatusCard">
+                    <span class="dash-card-label">Risk Status</span>
+                    <span class="dash-card-value risk-badge" id="dashRiskStatus">--</span>
+                </div>
+            </section>
+
+            <!-- Recent Trades -->
+            <section class="dashboard-section">
+                <div class="section-header">
+                    <h3>Recent Trades</h3>
+                    <button class="btn btn-sm btn-primary" data-view="journal">View All</button>
+                </div>
+                <div class="trades-table-container" id="dashboardRecentTrades">
+                    <p class="empty-state">No trades logged yet. Start your journey!</p>
+                </div>
+            </section>
+        </main>
+
+
+        <!-- ==================================== -->
+        <!-- VIEW: POSITION SIZE CALCULATOR       -->
+        <!-- ==================================== -->
+        <section id="view-calculator" class="view-container" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Position Size Calculator</h2>
+                <p class="view-subtitle">Professional Risk Management</p>
+            </div>
+            <div class="placeholder-content">
+                <span class="placeholder-icon">🧮</span>
+                <p>Calculator will be wired in V2.1</p>
+            </div>
+        </section>
+
+
+        <!-- ==================================== -->
+        <!-- VIEW: TRADE CHECKLIST                -->
+        <!-- ==================================== -->
+        <section id="view-checklist" class="view-container" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Trade Checklist</h2>
+                <p class="view-subtitle">Pre-Trade Ritual</p>
+            </div>
+            <div class="placeholder-content">
+                <span class="placeholder-icon">✅</span>
+                <p>Checklist will be wired in V2.2</p>
+            </div>
+        </section>
+
+
+        <!-- ==================================== -->
+        <!-- VIEW: TRADE JOURNAL (V2 Priority)    -->
+        <!-- ==================================== -->
+        <section id="view-journal" class="view-container" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Trade Journal</h2>
+                <p class="view-subtitle">Every trade tells a story</p>
+            </div>
+
+            <!-- Journal Toolbar -->
+            <div class="journal-toolbar">
+                <button id="btnNewTrade" class="btn btn-primary">+ New Trade</button>
+                <div class="journal-filters">
+                    <select id="journalFilterAccount" class="select-sm" aria-label="Filter by account">
+                        <option value="all">All Accounts</option>
+                    </select>
+                    <select id="journalFilterStatus" class="select-sm" aria-label="Filter by status">
+                        <option value="all">All Status</option>
+                        <option value="OPEN">Open</option>
+                        <option value="CLOSED">Closed</option>
+                    </select>
+                    <select id="journalFilterResult" class="select-sm" aria-label="Filter by result">
+                        <option value="all">All Results</option>
+                        <option value="WIN">Win</option>
+                        <option value="LOSS">Loss</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Journal Summary -->
+            <div class="journal-summary" id="journalSummary">
+                <div class="summary-pill">
+                    <span>Total Trades</span>
+                    <strong id="journalTotalTrades">0</strong>
+                </div>
+                <div class="summary-pill">
+                    <span>Win Rate</span>
+                    <strong id="journalWinRate">--</strong>
+                </div>
+                <div class="summary-pill">
+                    <span>Total P&L</span>
+                    <strong id="journalTotalPnL">$0.00</strong>
+                </div>
+                <div class="summary-pill">
+                    <span>Avg R:R</span>
+                    <strong id="journalAvgRR">--</strong>
+                </div>
+            </div>
+
+            <!-- Journal Entries -->
+            <div class="journal-entries" id="journalEntries">
+                <p class="empty-state">No trades yet. Click "+ New Trade" to log your first one.</p>
+            </div>
+
+            <!-- New Trade Modal (Hidden by default) -->
+            <div id="tradeModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3 id="modalTitle">New Journal Entry</h3>
+                        <button id="btnModalClose" class="btn-icon" aria-label="Close">✕</button>
+                    </div>
+                    <form id="tradeForm" class="modal-body" autocomplete="off">
+                        <!-- Account Selection -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tradeAccount">Account</label>
+                                <select id="tradeAccount" required>
+                                    <option value="">Select Account</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeDate">Date</label>
+                                <input type="date" id="tradeDate" required>
+                            </div>
+                        </div>
+
+                        <!-- Trade Details -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tradePair">Pair / Instrument</label>
+                                <input type="text" id="tradePair" placeholder="e.g. XAUUSD" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeDirection">Direction</label>
+                                <div class="direction-toggle-modal">
+                                    <button type="button" id="modalBtnBuy" class="dir-btn active" data-dir="BUY">Buy</button>
+                                    <button type="button" id="modalBtnSell" class="dir-btn" data-dir="SELL">Sell</button>
+                                </div>
+                                <input type="hidden" id="tradeDirectionModal" value="BUY">
+                            </div>
+                        </div>
+
+                        <!-- Price Levels -->
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="tradeEntry">Entry Price</label>
+                                <input type="number" id="tradeEntry" step="any" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeSL">Stop Loss</label>
+                                <input type="number" id="tradeSL" step="any" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeTP">Take Profit</label>
+                                <input type="number" id="tradeTP" step="any" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Position Details -->
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="tradeLotSize">Lot Size</label>
+                                <input type="number" id="tradeLotSize" step="any" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeRisk">Risk Amount ($)</label>
+                                <input type="number" id="tradeRisk" step="any" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="tradeChecklistScore">Checklist Score</label>
+                                <input type="number" id="tradeChecklistScore" min="0" max="100" placeholder="0-100">
+                            </div>
+                        </div>
+
+                        <!-- Trade Status -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <div class="status-toggle">
+                                    <button type="button" id="modalBtnOpen" class="dir-btn active" data-status="OPEN">Open</button>
+                                    <button type="button" id="modalBtnClosed" class="dir-btn" data-status="CLOSED">Closed</button>
+                                </div>
+                                <input type="hidden" id="tradeStatus" value="OPEN">
+                            </div>
+                        </div>
+
+                        <!-- Close Details (Shown only if CLOSED) -->
+                        <div id="closeDetailsSection" class="form-row form-row-3 hidden">
+                            <div class="form-group">
+                                <label for="tradeResult">Result</label>
+                                <select id="tradeResult">
+                                    <option value="">Select</option>
+                                    <option value="WIN">Win ✅</option>
+                                    <option value="LOSS">Loss ❌</option>
+                                    <option value="BREAKEVEN">Breakeven ➖</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tradePnL">Actual P&L ($)</label>
+                                <input type="number" id="tradePnL" step="any" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="form-group">
+                            <label for="tradeNotes">Notes</label>
+                            <textarea id="tradeNotes" rows="2" placeholder="What happened? What did you learn?"></textarea>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="modal-actions">
+                            <button type="button" id="btnModalCancel" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" id="btnModalSave" class="btn btn-primary">Save Entry</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================================== -->
+        <!-- VIEW: TOOLS                          -->
+        <!-- ==================================== -->
+        <section id="view-tools" class="view-container" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Tools</h2>
+                <p class="view-subtitle">Utility Calculators</p>
+            </div>
+
+            <!-- Collapsible Tool Cards -->
+            <div class="tools-grid">
+                <!-- Pip Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>📏 Pip Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+
+                <!-- Drawdown Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>📉 Drawdown Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+
+                <!-- Compounding Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>📈 Compounding Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+
+                <!-- Profit Split Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>💰 Profit Split Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+
+                <!-- Daily Target Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>🎯 Daily Target Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+
+                <!-- Risk of Ruin Calculator -->
+                <details class="tool-card">
+                    <summary class="tool-card-header">
+                        <span>⚠️ Risk of Ruin Calculator</span>
+                        <span class="toggle-indicator">▶</span>
+                    </summary>
+                    <div class="tool-card-body placeholder-content">
+                        <p>Coming in V2.3</p>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+
+        <!-- ==================================== -->
+        <!-- VIEW: SETTINGS                       -->
+        <!-- ==================================== -->
+        <section id="view-settings" class="view-container" role="tabpanel">
+            <div class="view-header">
+                <h2 class="view-title">Settings</h2>
+                <p class="view-subtitle">Configure your workspace</p>
+            </div>
+
+            <!-- Profile Section -->
+            <section class="settings-section">
+                <h3 class="settings-section-title">Profile</h3>
+                <div class="form-group">
+                    <label for="settingsTraderName">Trader Name</label>
+                    <input type="text" id="settingsTraderName" placeholder="Enter your name" maxlength="50">
+                </div>
+            </section>
+
+            <!-- Account Manager -->
+            <section class="settings-section">
+                <div class="section-header">
+                    <h3 class="settings-section-title">My Accounts</h3>
+                    <button id="btnAddAccount" class="btn btn-sm btn-primary">+ Add Account</button>
+                </div>
+                <div id="accountsList" class="accounts-list">
+                    <p class="empty-state">No accounts added. Add your first one!</p>
+                </div>
+            </section>
+
+            <!-- Add/Edit Account Modal -->
+            <div id="accountModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <h3 id="accountModalTitle">Add Account</h3>
+                        <button id="btnAccountModalClose" class="btn-icon" aria-label="Close">✕</button>
+                    </div>
+                    <form id="accountForm" class="modal-body" autocomplete="off">
+                        <input type="hidden" id="accountFormId">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="accountName">Account Name</label>
+                                <input type="text" id="accountName" placeholder="e.g. My FTMO Challenge" required maxlength="50">
+                            </div>
+                            <div class="form-group">
+                                <label for="accountType">Account Type</label>
+                                <select id="accountType" required>
+                                    <option value="Live">Live</option>
+                                    <option value="Demo">Demo</option>
+                                    <option value="Prop Firm">Prop Firm</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="accountBalance">Balance ($)</label>
+                                <input type="number" id="accountBalance" step="any" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="accountLeverage">Leverage</label>
+                                <select id="accountLeverage">
+                                    <option value="0">None</option>
+                                    <option value="10">1:10</option>
+                                    <option value="30">1:30</option>
+                                    <option value="50">1:50</option>
+                                    <option value="100" selected>1:100</option>
+                                    <option value="200">1:200</option>
+                                    <option value="500">1:500</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="accountDailyDD">Daily DD Limit (%)</label>
+                                <input type="number" id="accountDailyDD" step="any" placeholder="5" min="0" max="100">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="form-group">
+                                <label for="accountOverallDD">Overall DD Limit (%)</label>
+                                <input type="number" id="accountOverallDD" step="any" placeholder="10" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="accountProfitTarget">Profit Target (%)</label>
+                                <input type="number" id="accountProfitTarget" step="any" placeholder="10" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="accountMinDays">Min Trading Days</label>
+                                <input type="number" id="accountMinDays" min="0" placeholder="0">
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" id="btnAccountModalCancel" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Account</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <section class="settings-section">
+                <h3 class="settings-section-title">Data Management</h3>
+                <div class="settings-actions">
+                    <button id="btnExportData" class="btn btn-secondary">📤 Export All Data</button>
+                    <button id="btnResetData" class="btn btn-danger">🔄 Reset Everything</button>
+                </div>
+            </section>
+        </section>
+
+    </div><!-- .app-main -->
+
+
+    <!-- ========================================== -->
+    <!-- TOAST NOTIFICATION                         -->
+    <!-- ========================================== -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+
+    <!-- ========================================== -->
+    <!-- SCRIPTS (Load order matters)               -->
+    <!-- ========================================== -->
+    <script src="js/config.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/math.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/views/dashboard.js"></script>
+    <script src="js/views/calculator.js"></script>
+    <script src="js/views/checklist.js"></script>
+    <script src="js/views/journal.js"></script>
+    <script src="js/views/tools.js"></script>
+    <script src="js/views/settings.js"></script>
+    <script src="js/main.js"></script>
+
 </body>
 </html>

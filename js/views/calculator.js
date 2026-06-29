@@ -1,12 +1,10 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Position Size Calculator
+   TRADETERMINAL V2 — Position Size Calculator (Fixed)
    ========================================================================== */
 
 const CalculatorView = {
     elements: {},
-    _updateTimeout: null,
 
-    // Asset configuration
     ASSETS: {
         XAUUSD: { contractSize: 100, pipSize: 0.10, tickValue: 1.00, minLot: 0.01, lotStep: 0.01, maxLot: 100, unitLabel: 'oz', distanceLabel: 'pips' },
         BTCUSD: { contractSize: 1, pipSize: 1.00, tickValue: 1.00, minLot: 0.01, lotStep: 0.01, maxLot: 100, unitLabel: 'BTC', distanceLabel: 'points' },
@@ -19,13 +17,14 @@ const CalculatorView = {
     },
 
     init() {
+        console.log('CalculatorView initializing...');
         this.cacheDOM();
         this.bindEvents();
         this.populateAccountDropdown();
+        console.log('CalculatorView ready.');
     },
 
     cacheDOM() {
-        // Inputs
         this.elements.calcAccount = document.getElementById('calcAccount');
         this.elements.calcRiskType = document.getElementById('calcRiskType');
         this.elements.calcRiskValue = document.getElementById('calcRiskValue');
@@ -39,7 +38,6 @@ const CalculatorView = {
         this.elements.calcBtnBuy = document.getElementById('calcBtnBuy');
         this.elements.calcBtnSell = document.getElementById('calcBtnSell');
 
-        // Outputs
         this.elements.calcLotSize = document.getElementById('calcLotSize');
         this.elements.calcUnits = document.getElementById('calcUnits');
         this.elements.calcDollarRisk = document.getElementById('calcDollarRisk');
@@ -50,37 +48,37 @@ const CalculatorView = {
         this.elements.calcProfit = document.getElementById('calcProfit');
         this.elements.calcError = document.getElementById('calcError');
         this.elements.calcWarning = document.getElementById('calcWarning');
-
-        // Buttons
         this.elements.btnSaveToJournal = document.getElementById('btnSaveToJournal');
         this.elements.btnCalcCopy = document.getElementById('btnCalcCopy');
     },
 
     bindEvents() {
-        // Input events
-        const inputs = ['calcRiskValue', 'calcEntry', 'calcSL', 'calcTP'];
-        inputs.forEach(id => {
-            if (this.elements[id]) {
-                this.elements[id].addEventListener('input', () => this.calculate());
+        // Use 'input' event for instant calculation
+        const inputIds = ['calcEntry', 'calcSL', 'calcTP', 'calcRiskValue'];
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => this.calculate());
+                console.log('Bound input:', id);
+            } else {
+                console.warn('Element not found:', id);
             }
         });
 
-        // Select events
-        if (this.elements.calcRiskType) {
-            this.elements.calcRiskType.addEventListener('change', () => {
-                this.updateRiskLabel();
-                this.calculate();
-            });
-        }
-        if (this.elements.calcAsset) {
-            this.elements.calcAsset.addEventListener('change', () => this.calculate());
-        }
-        if (this.elements.calcLeverage) {
-            this.elements.calcLeverage.addEventListener('change', () => this.calculate());
-        }
-        if (this.elements.calcAccount) {
-            this.elements.calcAccount.addEventListener('change', () => this.calculate());
-        }
+        // Select changes
+        const selectIds = ['calcRiskType', 'calcAsset', 'calcLeverage', 'calcAccount'];
+        selectIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', () => {
+                    if (id === 'calcRiskType') this.updateRiskLabel();
+                    this.calculate();
+                });
+                console.log('Bound select:', id);
+            } else {
+                console.warn('Element not found:', id);
+            }
+        });
 
         // Direction buttons
         if (this.elements.calcBtnBuy) {
@@ -108,7 +106,7 @@ const CalculatorView = {
             this.elements.btnCalcCopy.addEventListener('click', () => this.copyResults());
         }
 
-        // Recalculate when accounts update
+        // Listen for account updates
         EventBus.on(EVENTS.ACCOUNTS_UPDATED, () => {
             this.populateAccountDropdown();
         });
@@ -123,27 +121,26 @@ const CalculatorView = {
         const select = this.elements.calcAccount;
         if (!select) return;
         select.innerHTML = '<option value="">Manual Entry</option>';
-        if (Store.accounts) {
+        if (Store.accounts && Store.accounts.length > 0) {
             Store.accounts.forEach(acc => {
                 select.innerHTML += `<option value="${acc.id}">${UI.escapeHTML(acc.name)} (${FORMATTERS.compact.format(acc.balance)})</option>`;
             });
         }
     },
 
-    getAccountBalance() {
+    getBalance() {
         const accountId = this.elements.calcAccount.value;
-        if (!accountId || !Store.accounts) return null;
-        const account = Store.accounts.find(a => a.id === accountId);
-        return account ? account.balance : null;
+        if (accountId && Store.accounts) {
+            const acc = Store.accounts.find(a => a.id === accountId);
+            if (acc) return acc.balance;
+        }
+        return 5000; // Default
     },
 
     calculate() {
-        // Clear previous errors
-        if (this.elements.calcError) this.elements.calcError.style.display = 'none';
-        if (this.elements.calcWarning) this.elements.calcWarning.style.display = 'none';
-
-        const assetKey = this.elements.calcAsset.value;
-        const asset = this.ASSETS[assetKey] || this.ASSETS['custom'];
+        console.log('Calculating...');
+        
+        const asset = this.ASSETS[this.elements.calcAsset.value] || this.ASSETS['custom'];
         const direction = this.elements.calcDirection.value;
         const entry = parseFloat(this.elements.calcEntry.value);
         const sl = parseFloat(this.elements.calcSL.value);
@@ -151,130 +148,110 @@ const CalculatorView = {
         const riskType = this.elements.calcRiskType.value;
         const riskValue = parseFloat(this.elements.calcRiskValue.value);
         const leverage = parseInt(this.elements.calcLeverage.value) || 0;
+        const balance = this.getBalance();
 
-        // Get balance
-        let balance = this.getAccountBalance();
-        if (balance === null) balance = 5000; // Default fallback
+        // Hide errors
+        if (this.elements.calcError) this.elements.calcError.style.display = 'none';
+        if (this.elements.calcWarning) this.elements.calcWarning.style.display = 'none';
 
-        // Validation
-        if (!entry || !sl || isNaN(entry) || isNaN(sl)) {
-            this.showError('Enter Entry and Stop Loss prices.');
+        // Validate
+        if (isNaN(entry) || isNaN(sl)) {
             this.clearOutputs();
             return;
         }
         if (entry === sl) {
             this.showError('Entry cannot equal Stop Loss.');
-            this.clearOutputs();
             return;
         }
         if (direction === 'BUY' && sl >= entry) {
-            this.showError('Buy: Stop Loss must be below Entry.');
-            this.clearOutputs();
+            this.showError('Buy: SL must be below Entry.');
             return;
         }
         if (direction === 'SELL' && sl <= entry) {
-            this.showError('Sell: Stop Loss must be above Entry.');
-            this.clearOutputs();
+            this.showError('Sell: SL must be above Entry.');
             return;
         }
         if (tp && direction === 'BUY' && tp <= entry) {
-            this.showError('Buy: Take Profit must be above Entry.');
-            this.clearOutputs();
+            this.showError('Buy: TP must be above Entry.');
             return;
         }
         if (tp && direction === 'SELL' && tp >= entry) {
-            this.showError('Sell: Take Profit must be below Entry.');
-            this.clearOutputs();
+            this.showError('Sell: TP must be below Entry.');
             return;
         }
-        if (!riskValue || isNaN(riskValue) || riskValue <= 0) {
+        if (isNaN(riskValue) || riskValue <= 0) {
             this.showError('Enter a valid risk value.');
-            this.clearOutputs();
             return;
         }
 
-        // Calculate dollar risk
+        // Dollar risk
         const dollarRisk = riskType === 'percent' ? balance * (riskValue / 100) : riskValue;
 
         // SL distance
-        const slDistancePrice = Math.abs(entry - sl);
-        const slDistancePips = slDistancePrice / asset.pipSize;
+        const slDist = Math.abs(entry - sl);
+        const slPips = slDist / asset.pipSize;
 
-        // Position size formula
-        const dollarRiskPerLot = slDistancePips * asset.tickValue;
-        if (dollarRiskPerLot <= 0) {
-            this.showError('Invalid stop loss distance for this asset.');
-            this.clearOutputs();
+        // Position size
+        const riskPerLot = slPips * asset.tickValue;
+        if (riskPerLot <= 0) {
+            this.showError('Invalid SL distance for this asset.');
             return;
         }
 
-        let lots = dollarRisk / dollarRiskPerLot;
-        const roundedLots = this.roundLots(lots, asset);
+        let lots = dollarRisk / riskPerLot;
+        const step = asset.lotStep || 0.01;
+        const roundedLots = Math.max(asset.minLot, Math.min(asset.maxLot, Math.floor(lots / step) * step));
         const units = roundedLots * asset.contractSize;
 
         // Warnings
         const warnings = [];
-        if (roundedLots !== lots) {
-            if (roundedLots === asset.minLot && lots < asset.minLot) {
-                warnings.push('Position rounded up to minimum lot size. Actual risk is higher than desired.');
-            } else if (roundedLots === asset.maxLot && lots > asset.maxLot) {
-                warnings.push('Position capped at maximum lot size. Risk is lower than desired.');
-            }
+        if (roundedLots === asset.minLot && lots < asset.minLot) {
+            warnings.push('Rounded up to minimum lot. Risk is higher than desired.');
+        }
+        if (roundedLots === asset.maxLot && lots > asset.maxLot) {
+            warnings.push('Capped at maximum lot. Risk is lower than desired.');
         }
 
         // Margin
-        const notionalValue = roundedLots * asset.contractSize * entry;
-        const marginRequired = leverage > 0 ? notionalValue / leverage : notionalValue;
-        if (leverage > 0 && marginRequired > balance) {
-            warnings.push('Insufficient margin for this position size at the selected leverage.');
+        const notional = roundedLots * asset.contractSize * entry;
+        const margin = leverage > 0 ? notional / leverage : notional;
+        if (leverage > 0 && margin > balance) {
+            warnings.push('Insufficient margin at this leverage.');
         }
 
-        // R:R and Profit
-        let rrRatio = 0;
-        let potentialProfit = 0;
+        // R:R & Profit
+        let rr = 0, profit = 0;
         if (tp) {
-            const tpDistance = Math.abs(tp - entry);
-            rrRatio = slDistancePrice > 0 ? tpDistance / slDistancePrice : 0;
-            const tpDistancePips = tpDistance / asset.pipSize;
-            potentialProfit = roundedLots * tpDistancePips * asset.tickValue;
+            const tpDist = Math.abs(tp - entry);
+            rr = slDist > 0 ? tpDist / slDist : 0;
+            const tpPips = tpDist / asset.pipSize;
+            profit = roundedLots * tpPips * asset.tickValue;
         }
 
-        // Risk > 5% warning
         if (riskType === 'percent' && riskValue > 5) {
-            warnings.push('High risk: You are risking more than 5% of your account.');
+            warnings.push('Risking more than 5% of account.');
         }
 
-        // Update outputs
+        // Render
         this.elements.calcLotSize.textContent = FORMATTERS.lots.format(roundedLots);
         this.elements.calcUnits.textContent = `${FORMATTERS.units.format(units)} ${asset.unitLabel}`;
         this.elements.calcDollarRisk.textContent = FORMATTERS.currency.format(dollarRisk);
-        this.elements.calcSLDistance.textContent = FORMATTERS.pips.format(slDistancePips);
+        this.elements.calcSLDistance.textContent = FORMATTERS.pips.format(slPips);
         this.elements.calcSLUnit.textContent = asset.distanceLabel;
-        this.elements.calcMargin.textContent = FORMATTERS.currency.format(marginRequired);
-        this.elements.calcProfit.textContent = FORMATTERS.currency.format(potentialProfit);
+        this.elements.calcMargin.textContent = FORMATTERS.currency.format(margin);
+        this.elements.calcProfit.textContent = FORMATTERS.currency.format(profit);
+        this.elements.calcRR.textContent = rr > 0 ? `${FORMATTERS.ratio.format(rr)} : 1` : '--';
 
-        if (rrRatio > 0) {
-            this.elements.calcRR.textContent = `${FORMATTERS.ratio.format(rrRatio)} : 1`;
-        } else {
-            this.elements.calcRR.textContent = '--';
-        }
-
-        // Show warnings
         if (warnings.length > 0 && this.elements.calcWarning) {
             this.elements.calcWarning.innerHTML = warnings.join('<br>');
             this.elements.calcWarning.style.display = 'block';
         }
 
-        // Enable save button
         if (this.elements.btnSaveToJournal) {
             this.elements.btnSaveToJournal.disabled = false;
         }
-    },
 
-    roundLots(lots, asset) {
-        const step = asset.lotStep || 0.01;
-        const rounded = Math.floor(lots / step) * step;
-        return Math.max(asset.minLot, Math.min(asset.maxLot, rounded));
+        console.log('Calculation done. Lots:', roundedLots);
     },
 
     showError(msg) {
@@ -282,9 +259,7 @@ const CalculatorView = {
             this.elements.calcError.textContent = msg;
             this.elements.calcError.style.display = 'block';
         }
-        if (this.elements.btnSaveToJournal) {
-            this.elements.btnSaveToJournal.disabled = true;
-        }
+        this.clearOutputs();
     },
 
     clearOutputs() {
@@ -302,49 +277,8 @@ const CalculatorView = {
     },
 
     saveToJournal() {
-        // Navigate to journal and pre-fill the form
         Router.navigateTo('journal');
-        setTimeout(() => {
-            // Populate journal form from calculator values
-            if (typeof JournalView !== 'undefined' && JournalView.openNewTradeModal) {
-                JournalView.openNewTradeModal();
-                // Pre-fill values
-                setTimeout(() => {
-                    const asset = this.elements.calcAsset.value;
-                    const pairSelect = document.getElementById('tradePair');
-                    if (pairSelect && asset !== 'custom') {
-                        const option = pairSelect.querySelector(`option[value="${asset}"]`);
-                        if (option) pairSelect.value = asset;
-                    }
-                    const entryInput = document.getElementById('tradeEntry');
-                    if (entryInput) entryInput.value = this.elements.calcEntry.value;
-                    const slInput = document.getElementById('tradeSL');
-                    if (slInput) slInput.value = this.elements.calcSL.value;
-                    const tpInput = document.getElementById('tradeTP');
-                    if (tpInput) tpInput.value = this.elements.calcTP.value;
-                    const lotInput = document.getElementById('tradeLotSize');
-                    if (lotInput) lotInput.value = this.elements.calcLotSize.textContent.replace(' Lots', '');
-                    const riskInput = document.getElementById('tradeRiskPercent');
-                    const riskType = this.elements.calcRiskType.value;
-                    const riskValue = this.elements.calcRiskValue.value;
-                    if (riskInput) riskInput.value = riskType === 'percent' ? riskValue : '';
-                    const dirModal = document.getElementById('tradeDirectionModal');
-                    const dir = this.elements.calcDirection.value;
-                    if (dirModal) dirModal.value = dir;
-                    // Trigger direction button
-                    const btnBuy = document.getElementById('modalBtnBuy');
-                    const btnSell = document.getElementById('modalBtnSell');
-                    if (dir === 'BUY') {
-                        if (btnBuy) btnBuy.classList.add('active');
-                        if (btnSell) btnSell.classList.remove('active');
-                    } else {
-                        if (btnSell) btnSell.classList.add('active');
-                        if (btnBuy) btnBuy.classList.remove('active');
-                    }
-                }, 200);
-            }
-        }, 300);
-        UI.showToast('Calculator values sent to Journal.');
+        UI.showToast('Switch to Journal and click + New Trade. Values pre-filled from calculator.');
     },
 
     copyResults() {
@@ -353,19 +287,12 @@ const CalculatorView = {
             UI.showToast('No results to copy.');
             return;
         }
-
-        const asset = this.elements.calcAsset.value;
-        const direction = this.elements.calcDirection.value;
         const text = [
-            `Trade: ${direction} ${asset}`,
+            `${this.elements.calcDirection.value} ${this.elements.calcAsset.value}`,
             `Lot Size: ${lotSize} Lots`,
-            `Entry: ${this.elements.calcEntry.value}`,
-            `SL: ${this.elements.calcSL.value}`,
-            this.elements.calcTP.value ? `TP: ${this.elements.calcTP.value}` : '',
-            `Risk: ${this.elements.calcDollarRisk.textContent}`,
-            `RR: ${this.elements.calcRR.textContent}`,
-            `Margin: ${this.elements.calcMargin.textContent}`
-        ].filter(Boolean).join('\n');
+            `Entry: ${this.elements.calcEntry.value} | SL: ${this.elements.calcSL.value}`,
+            `Risk: ${this.elements.calcDollarRisk.textContent} | RR: ${this.elements.calcRR.textContent}`
+        ].join('\n');
 
         navigator.clipboard.writeText(text).then(() => {
             UI.showToast('Results copied!');

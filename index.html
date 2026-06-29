@@ -73,7 +73,7 @@
         </nav>
 
         <div class="drawer-footer">
-            <span class="version-text">v2.0</span>
+            <span class="version-text">v2.1</span>
         </div>
     </aside>
 
@@ -102,7 +102,10 @@
             </div>
 
             <div class="top-bar-stats" id="topBarStats">
-                <!-- Populated by JS -->
+                <div class="stat-pill stat-pill-time">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="headerTime">--:--</span>
+                </div>
                 <div class="stat-pill">
                     <span class="stat-label">Balance</span>
                     <span class="stat-value" id="headerBalance">$0.00</span>
@@ -133,26 +136,19 @@
 
             <!-- Account Overview Cards -->
             <section class="dashboard-grid" id="dashboardAccountCards">
-                <!-- Account Type Card -->
                 <div class="dash-card dash-card-accent">
                     <span class="dash-card-label">Account</span>
                     <span class="dash-card-value" id="dashAccountType">Not Set</span>
                     <span class="dash-card-sub" id="dashAccountName">Configure in Settings</span>
                 </div>
-
-                <!-- Balance Card -->
                 <div class="dash-card">
                     <span class="dash-card-label">Balance</span>
                     <span class="dash-card-value" id="dashBalance">$0.00</span>
                 </div>
-
-                <!-- Today's P&L Card -->
                 <div class="dash-card">
                     <span class="dash-card-label">Today's P&L</span>
                     <span class="dash-card-value" id="dashTodayPnL">$0.00</span>
                 </div>
-
-                <!-- Win Rate Card -->
                 <div class="dash-card">
                     <span class="dash-card-label">Win Rate</span>
                     <span class="dash-card-value" id="dashWinRate">--</span>
@@ -161,7 +157,6 @@
 
             <!-- Risk Metrics Row -->
             <section class="dashboard-grid dashboard-grid-3col" id="dashboardRiskCards">
-                <!-- Daily DD Card -->
                 <div class="dash-card">
                     <span class="dash-card-label">Daily DD Remaining</span>
                     <span class="dash-card-value" id="dashDailyDD">--</span>
@@ -169,8 +164,6 @@
                         <div class="progress-fill" id="dashDailyDDFill" style="width: 0%;"></div>
                     </div>
                 </div>
-
-                <!-- Overall DD Card -->
                 <div class="dash-card">
                     <span class="dash-card-label">Overall DD Remaining</span>
                     <span class="dash-card-value" id="dashOverallDD">--</span>
@@ -178,8 +171,6 @@
                         <div class="progress-fill" id="dashOverallDDFill" style="width: 0%;"></div>
                     </div>
                 </div>
-
-                <!-- Risk Status Card -->
                 <div class="dash-card dash-card-status" id="dashRiskStatusCard">
                     <span class="dash-card-label">Risk Status</span>
                     <span class="dash-card-value risk-badge" id="dashRiskStatus">--</span>
@@ -238,7 +229,6 @@
                 <p class="view-subtitle">Document every trade. Learn from every outcome.</p>
             </div>
 
-            <!-- Journal Toolbar -->
             <div class="journal-toolbar">
                 <button id="btnNewTrade" class="btn btn-primary">+ New Trade</button>
                 <div class="journal-filters">
@@ -257,7 +247,6 @@
                 </div>
             </div>
 
-            <!-- Journal Stats Bar -->
             <div class="journal-stats-bar" id="journalStatsBar">
                 <div class="journal-stat">
                     <span class="journal-stat-label">Total Trades</span>
@@ -285,7 +274,6 @@
                 </div>
             </div>
 
-            <!-- Journal Entries List -->
             <div class="journal-entries" id="journalEntries">
                 <p class="empty-state">No trades logged yet. Start building your edge.</p>
             </div>
@@ -298,8 +286,6 @@
                         <button id="btnModalClose" class="btn-icon" aria-label="Close">✕</button>
                     </div>
                     <form id="tradeForm" class="modal-body" autocomplete="off">
-                        
-                        <!-- Row 1: Account & Date -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="tradeAccount">Account</label>
@@ -312,8 +298,6 @@
                                 <input type="date" id="tradeDate" required>
                             </div>
                         </div>
-
-                        <!-- Row 2: Pair & Direction -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="tradePair">Pair</label>
@@ -337,8 +321,6 @@
                                 <input type="hidden" id="tradeDirectionModal" value="BUY">
                             </div>
                         </div>
-
-                        <!-- Row 3: Result & P&L & Risk -->
                         <div class="form-row form-row-3">
                             <div class="form-group">
                                 <label for="tradeResult">Result</label>
@@ -358,8 +340,6 @@
                                 <input type="number" id="tradeRiskPercent" step="any" placeholder="0.5" min="0" max="100">
                             </div>
                         </div>
-
-                        <!-- Row 4: Entry, SL, TP, Lot Size -->
                         <div class="form-row form-row-4">
                             <div class="form-group">
                                 <label for="tradeEntry">Entry</label>
@@ -378,8 +358,6 @@
                                 <input type="number" id="tradeLotSize" step="any" placeholder="0.00">
                             </div>
                         </div>
-
-                        <!-- Row 5: Rating -->
                         <div class="form-group">
                             <label>Trade Rating</label>
                             <div class="rating-stars" id="ratingStars">
@@ -391,26 +369,19 @@
                             </div>
                             <input type="hidden" id="tradeRating" value="0">
                         </div>
-
                         <div class="form-divider"></div>
-
-                        <!-- Row 6: Reflection (Clean & Professional) -->
                         <div class="form-group">
                             <label for="tradeWentWell">What went well?</label>
                             <textarea id="tradeWentWell" rows="2" placeholder="Discipline, patience, good entry..."></textarea>
                         </div>
-
                         <div class="form-group">
                             <label for="tradeMistakes">Mistakes made?</label>
                             <textarea id="tradeMistakes" rows="2" placeholder="Entered too early, moved SL, overconfidence..."></textarea>
                         </div>
-
                         <div class="form-group">
                             <label for="tradeLesson">Lesson learned</label>
                             <textarea id="tradeLesson" rows="2" placeholder="What will you do differently next time?"></textarea>
                         </div>
-
-                        <!-- Form Actions -->
                         <div class="modal-actions">
                             <button type="button" id="btnModalCancel" class="btn btn-secondary">Cancel</button>
                             <button type="submit" id="btnModalSave" class="btn btn-primary">Save Trade</button>
@@ -530,16 +501,14 @@
                 </div>
             </div>
 
-            <!-- Trade Detail Modal (Read-only view) -->
+            <!-- Trade Detail Modal -->
             <div id="tradeDetailModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
                 <div class="modal-container modal-journal">
                     <div class="modal-header">
                         <h3 id="detailModalTitle">Trade Details</h3>
                         <button id="btnDetailModalClose" class="btn-icon" aria-label="Close">✕</button>
                     </div>
-                    <div class="modal-body" id="tradeDetailContent">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="modal-body" id="tradeDetailContent"></div>
                     <div class="modal-actions">
                         <button type="button" id="btnDetailEdit" class="btn btn-primary">Edit Trade</button>
                         <button type="button" id="btnDetailDelete" class="btn btn-danger">Delete Trade</button>
@@ -556,73 +525,36 @@
                 <h2 class="view-title">Tools</h2>
                 <p class="view-subtitle">Utility Calculators</p>
             </div>
-
-            <!-- Collapsible Tool Cards -->
             <div class="tools-grid">
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>📏 Pip Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>📏 Pip Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
-
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>📉 Drawdown Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>📉 Drawdown Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
-
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>📈 Compounding Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>📈 Compounding Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
-
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>💰 Profit Split Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>💰 Profit Split Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
-
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>🎯 Daily Target Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>🎯 Daily Target Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
-
                 <details class="tool-card">
-                    <summary class="tool-card-header">
-                        <span>⚠️ Risk of Ruin Calculator</span>
-                        <span class="toggle-indicator">▶</span>
-                    </summary>
-                    <div class="tool-card-body placeholder-content">
-                        <p>Coming in V2.5</p>
-                    </div>
+                    <summary class="tool-card-header"><span>⚠️ Risk of Ruin Calculator</span><span class="toggle-indicator">▶</span></summary>
+                    <div class="tool-card-body placeholder-content"><p>Coming in V2.5</p></div>
                 </details>
             </div>
         </section>
 
 
-                <!-- ==================================== -->
+        <!-- ==================================== -->
         <!-- VIEW: SETTINGS                       -->
         <!-- ==================================== -->
         <section id="view-settings" class="view-container" role="tabpanel">
@@ -631,9 +563,7 @@
                 <p class="view-subtitle">Configure your workspace</p>
             </div>
 
-            <!-- ==================================== -->
-            <!-- SECTION 1: WORKSPACE                 -->
-            <!-- ==================================== -->
+            <!-- SECTION 1: WORKSPACE -->
             <section class="settings-section">
                 <h3 class="settings-section-title">Workspace</h3>
                 <div class="settings-card">
@@ -688,12 +618,18 @@
                             <option value="Australia/Sydney">Sydney (AEST)</option>
                         </select>
                     </div>
+                    <!-- Save Button -->
+                    <div class="settings-field settings-field-save">
+                        <div class="settings-field-info">
+                            <span class="settings-field-label">Apply Changes</span>
+                            <span class="settings-field-hint">Save all workspace preferences</span>
+                        </div>
+                        <button id="btnSaveWorkspace" class="btn btn-primary">Save Settings</button>
+                    </div>
                 </div>
             </section>
 
-            <!-- ==================================== -->
-            <!-- SECTION 2: TRADING ACCOUNTS          -->
-            <!-- ==================================== -->
+            <!-- SECTION 2: TRADING ACCOUNTS -->
             <section class="settings-section">
                 <div class="settings-section-header">
                     <h3 class="settings-section-title">Trading Accounts</h3>
@@ -704,31 +640,21 @@
                 </div>
             </section>
 
-            <!-- ==================================== -->
-            <!-- SECTION 3: DATA                      -->
-            <!-- ==================================== -->
+            <!-- SECTION 3: DATA -->
             <section class="settings-section">
                 <h3 class="settings-section-title">Data</h3>
                 <div class="settings-card">
                     <div class="settings-data-actions">
-                        <button id="btnExportData" class="btn btn-secondary">
-                            <span>📤</span> Export Backup
-                        </button>
-                        <button id="btnImportData" class="btn btn-secondary">
-                            <span>📥</span> Import Backup
-                        </button>
+                        <button id="btnExportData" class="btn btn-secondary"><span>📤</span> Export Backup</button>
+                        <button id="btnImportData" class="btn btn-secondary"><span>📥</span> Import Backup</button>
                         <input type="file" id="importFileInput" class="hidden" accept=".json">
                     </div>
                     <div class="settings-data-divider"></div>
-                    <button id="btnResetData" class="btn btn-danger">
-                        <span>🔄</span> Reset Everything
-                    </button>
+                    <button id="btnResetData" class="btn btn-danger"><span>🔄</span> Reset Everything</button>
                 </div>
             </section>
 
-            <!-- ==================================== -->
-            <!-- ACCOUNT MODAL                        -->
-            <!-- ==================================== -->
+            <!-- ACCOUNT MODAL -->
             <div id="accountModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
                 <div class="modal-container">
                     <div class="modal-header">
@@ -792,6 +718,7 @@
             </div>
         </section>
 
+    </div><!-- .app-main -->
 
 
     <!-- ========================================== -->
@@ -801,22 +728,11 @@
 
 
     <!-- ========================================== -->
-    <!-- SCRIPTS (Load order matters)               -->
+    <!-- SCRIPTS                                    -->
     <!-- ========================================== -->
     <script src="js/config.js"></script>
     <script src="js/state.js"></script>
     <script src="js/math.js"></script>
     <script src="js/validation.js"></script>
     <script src="js/storage.js"></script>
-    <script src="js/router.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/views/dashboard.js"></script>
-    <script src="js/views/calculator.js"></script>
-    <script src="js/views/checklist.js"></script>
-    <script src="js/views/journal.js"></script>
-    <script src="js/views/tools.js"></script>
-    <script src="js/views/settings.js"></script>
-    <script src="js/main.js"></script>
-
-</body>
-</html>
+    <script src="js

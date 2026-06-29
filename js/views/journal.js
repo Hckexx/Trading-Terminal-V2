@@ -532,39 +532,42 @@ const JournalView = {
     // DROPDOWN POPULATION
     // ==========================================
     populateFilterDropdowns() {
-        // Account filter
-        const accountFilter = this.elements.filterAccount;
-        accountFilter.innerHTML = '<option value="all">All Accounts</option>';
-        Store.accounts.forEach(acc => {
-            accountFilter.innerHTML += `<option value="${acc.id}">${UI.escapeHTML(acc.name)}</option>`;
-        });
+    // Account filter
+    const accountFilter = this.elements.filterAccount;
+    const currentAccountFilter = accountFilter.value;
+    accountFilter.innerHTML = '<option value="all">All Accounts</option>';
+    Store.accounts.forEach(acc => {
+        const selected = currentAccountFilter === acc.id ? 'selected' : '';
+        accountFilter.innerHTML += `<option value="${acc.id}" ${selected}>${UI.escapeHTML(acc.name)}</option>`;
+    });
+    // Restore previous selection if it still exists
+    if (currentAccountFilter && Store.accounts.some(a => a.id === currentAccountFilter)) {
+        accountFilter.value = currentAccountFilter;
+    } else {
+        accountFilter.value = 'all';
+        this.currentFilters.account = 'all';
+    }
 
-        // Pair filter (from journal data + defaults)
-        const pairFilter = this.elements.filterPair;
-        pairFilter.innerHTML = '<option value="all">All Pairs</option>';
-        const usedPairs = new Set(Store.journal.map(t => t.pair).filter(Boolean));
-        JOURNAL_PAIRS.forEach(p => usedPairs.add(p));
-        [...usedPairs].sort().forEach(p => {
-            if (p) pairFilter.innerHTML += `<option value="${p}">${p}</option>`;
-        });
-
-        // Restore current filters
-        accountFilter.value = this.currentFilters.account;
-        this.elements.filterResult.value = this.currentFilters.result;
-        // Pair filter restored after populating
-        if (this.currentFilters.pair && [...usedPairs].includes(this.currentFilters.pair)) {
-            pairFilter.value = this.currentFilters.pair;
+    // Pair filter
+    const pairFilter = this.elements.filterPair;
+    const currentPairFilter = pairFilter.value;
+    pairFilter.innerHTML = '<option value="all">All Pairs</option>';
+    const usedPairs = new Set();
+    JOURNAL_PAIRS.forEach(p => usedPairs.add(p));
+    Store.journal.forEach(t => { if (t.pair) usedPairs.add(t.pair); });
+    [...usedPairs].sort().forEach(p => {
+        if (p) {
+            const selected = currentPairFilter === p ? 'selected' : '';
+            pairFilter.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
         }
-    },
-
-    populateAccountDropdown(selectElement) {
-        if (!selectElement) return;
-        selectElement.innerHTML = '<option value="">Select Account</option>';
-        Store.accounts.forEach(acc => {
-            selectElement.innerHTML += `<option value="${acc.id}">${UI.escapeHTML(acc.name)}</option>`;
-        });
-    },
-
+    });
+    if (currentPairFilter && [...usedPairs].has(currentPairFilter)) {
+        pairFilter.value = currentPairFilter;
+    } else {
+        pairFilter.value = 'all';
+        this.currentFilters.pair = 'all';
+    }
+}
     // ==========================================
     // RENDER
     // ==========================================

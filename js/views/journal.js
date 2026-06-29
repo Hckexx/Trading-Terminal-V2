@@ -633,6 +633,16 @@ const JournalView = {
         container.querySelectorAll('.trade-entry-card').forEach(card => {
             const tradeId = card.dataset.tradeId;
 
+           // Listen for account changes (when user adds/edits accounts in Settings)
+EventBus.on(EVENTS.ACCOUNTS_UPDATED, () => {
+    this.populateFilterDropdowns();
+    this.renderAll();
+});
+ 
+EventBus.on(EVENTS.ACTIVE_ACCOUNT_CHANGED, () => {
+    this.populateFilterDropdowns();
+});
+
             // Click on header to expand/collapse
             card.querySelector('.trade-entry-header').addEventListener('click', (e) => {
                 // Don't toggle if clicking action buttons

@@ -1,0 +1,202 @@
+/* ==========================================================================
+   TRADETERMINAL V2 — Position Size Calculator
+   ========================================================================== */
+
+.calculator-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+.calc-section {
+    margin-bottom: var(--space-lg);
+}
+
+.calc-section:last-child {
+    margin-bottom: 0;
+}
+
+.calc-section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Input Panel */
+.calc-input-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+/* Output Panel */
+.calc-output-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Primary Result */
+.calc-result-primary {
+    text-align: center;
+    padding: var(--space-xl) var(--space-lg);
+    background: linear-gradient(135deg, rgba(41, 98, 255, 0.1) 0%, rgba(41, 98, 255, 0.02) 100%);
+    border: 1px solid rgba(41, 98, 255, 0.3);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.calc-result-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: var(--space-sm);
+}
+
+.calc-result-value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: #ffffff;
+    text-shadow: 0 0 16px rgba(41, 98, 255, 0.4);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.calc-result-unit {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Results Grid */
+.calc-results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.calc-result-tile {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+}
+
+.calc-result-label-sm {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.calc-result-value-sm {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.calc-result-unit-sm {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Direction Toggle */
+.direction-toggle-calc {
+    display: flex;
+    gap: 6px;
+}
+
+.dir-btn-calc {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.dir-btn-calc.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(41, 98, 255, 0.2);
+}
+
+.dir-btn-calc:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+/* Input Styles */
+.calc-input,
+.calc-select {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: border-color var(--transition-fast);
+    font-family: var(--font-sans);
+}
+
+.calc-input:focus,
+.calc-select:focus {
+    border-color: var(--border-focus);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.08);
+}
+
+/* Actions */
+.calc-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: auto;
+    padding-top: var(--space-lg);
+}
+
+.calc-actions .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .calculator-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .calc-result-value {
+        font-size: 2rem;
+    }
+}

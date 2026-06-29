@@ -578,3 +578,144 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* ==========================================================================
+   OVERFLOW FIXES — No horizontal scroll, professional layout
+   ========================================================================== */
+
+/* Prevent any horizontal overflow in journal view */
+#view-journal {
+    overflow-x: hidden;
+    max-width: 100%;
+    padding: var(--space-xl);
+}
+
+/* Journal toolbar — wrap on smaller screens, no overflow */
+.journal-toolbar {
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.journal-filters {
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.journal-filters .select-sm {
+    max-width: 160px;
+}
+
+/* Stats bar — prevent overflow, allow wrapping */
+.journal-stats-bar {
+    overflow: hidden;
+}
+
+/* Trade entry cards — contain within view */
+.trade-entry-card {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.trade-entry-header {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    overflow: hidden;
+}
+
+.trade-entry-left {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.trade-entry-right {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+/* Expanded body stays within card */
+.trade-entry-body {
+    overflow: hidden;
+}
+
+.trade-entry-details-grid {
+    overflow: hidden;
+}
+
+.trade-entry-reflection {
+    overflow: hidden;
+}
+
+/* Modal — no overflow */
+.modal-journal {
+    max-width: 620px;
+    width: calc(100% - 32px);
+    overflow-y: auto;
+    max-height: 85vh;
+}
+
+.modal-body {
+    overflow-x: hidden;
+}
+
+/* Form rows — wrap on narrow screens */
+.form-row {
+    flex-wrap: wrap;
+}
+
+.form-row-3,
+.form-row-4 {
+    flex-wrap: wrap;
+}
+
+.form-group {
+    min-width: 0;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    max-width: 100%;
+}
+
+/* Rating stars — inline, no overflow */
+.rating-stars {
+    flex-wrap: nowrap;
+}
+
+/* ==========================================================================
+   GLOBAL SCROLLBAR STYLING (Optional — makes it look premium)
+   ========================================================================== */
+
+/* Custom scrollbar for the entire app */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Hide horizontal scrollbar everywhere */
+body {
+    overflow-x: hidden;
+}
+
+.app-main {
+    overflow-x: hidden;
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}

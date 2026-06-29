@@ -93,8 +93,11 @@
 }
 
 /* ---- Hamburger Button ---- */
-.btn-hamburger {
-    display: none; /* Hidden on desktop by default */
+/* ---- Hamburger Button ---- */
+button.btn-hamburger,
+#btnDrawerOpen,
+.top-bar .btn-hamburger {
+    display: none !important;
     flex-direction: column;
     gap: 4px;
     padding: 8px;
@@ -102,7 +105,8 @@
     transition: background var(--transition-fast);
 }
 
-.btn-hamburger:hover {
+button.btn-hamburger:hover,
+#btnDrawerOpen:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -338,25 +342,60 @@
    ========================================================================== */
 
 /* ---- Desktop (default): Drawer always visible, no hamburger ---- */
+/* ==========================================================================
+   RESPONSIVE BEHAVIOR
+   ========================================================================== */
+
+/* Desktop: drawer always visible, NO hamburger, NO close button */
 @media (min-width: 769px) {
     .nav-drawer {
-        transform: translateX(0);
+        transform: translateX(0) !important;
     }
     
-    .btn-hamburger {
-        display: none;
+    #btnDrawerOpen,
+    .btn-hamburger,
+    button.btn-hamburger {
+        display: none !important;
     }
     
+    #btnDrawerClose,
     .btn-drawer-close {
-        display: none;
+        display: none !important;
     }
     
+    #drawerOverlay,
     .drawer-overlay {
         display: none !important;
     }
     
     .app-main {
-        margin-left: var(--drawer-width);
+        margin-left: var(--drawer-width) !important;
+    }
+}
+
+/* Mobile: drawer hidden, hamburger + close button visible */
+@media (max-width: 768px) {
+    .nav-drawer {
+        transform: translateX(-100%) !important;
+    }
+    
+    .nav-drawer.open {
+        transform: translateX(0) !important;
+    }
+    
+    #btnDrawerOpen,
+    .btn-hamburger,
+    button.btn-hamburger {
+        display: flex !important;
+    }
+    
+    #btnDrawerClose,
+    .btn-drawer-close {
+        display: flex !important;
+    }
+    
+    .app-main {
+        margin-left: 0 !important;
     }
 }
 

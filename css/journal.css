@@ -1,0 +1,580 @@
+/* ==========================================================================
+   TRADETERMINAL V2 — Trade Journal Styles
+   Premium Dark Theme
+   ========================================================================== */
+
+/* ==========================================================================
+   1. JOURNAL TOOLBAR
+   ========================================================================== */
+
+.journal-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.journal-filters {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   2. JOURNAL STATS BAR
+   ========================================================================== */
+
+.journal-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
+
+.journal-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: 14px 12px;
+    text-align: center;
+    transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.journal-stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background var(--transition-smooth);
+}
+
+.journal-stat:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-card-hover);
+    transform: translateY(-1px);
+}
+
+.journal-stat:hover::before {
+    background: var(--accent-blue);
+}
+
+.journal-stat-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+}
+
+.journal-stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.journal-stat-value.profit-text {
+    color: var(--accent-green);
+}
+
+.journal-stat-value.risk-text {
+    color: var(--accent-red);
+}
+
+/* ==========================================================================
+   3. JOURNAL ENTRIES LIST
+   ========================================================================== */
+
+.journal-entries {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* ---- Trade Entry Card ---- */
+.trade-entry-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    transition: var(--transition-fast);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.trade-entry-card:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-card-hover);
+    box-shadow: var(--shadow-card);
+}
+
+/* ---- Trade Entry Header ---- */
+.trade-entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px var(--space-lg);
+    gap: var(--space-md);
+}
+
+.trade-entry-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.trade-entry-pair {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    min-width: 80px;
+}
+
+/* Direction Badge */
+.trade-entry-direction {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trade-entry-direction.buy {
+    background: var(--accent-green-subtle);
+    color: var(--accent-green);
+}
+
+.trade-entry-direction.sell {
+    background: var(--accent-red-subtle);
+    color: var(--accent-red);
+}
+
+/* Result Badge */
+.trade-entry-result {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trade-entry-result.win {
+    background: var(--accent-green-subtle);
+    color: var(--accent-green);
+}
+
+.trade-entry-result.loss {
+    background: var(--accent-red-subtle);
+    color: var(--accent-red);
+}
+
+.trade-entry-result.breakeven {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+}
+
+/* Rating Stars (small, in card) */
+.trade-entry-rating {
+    display: flex;
+    gap: 1px;
+}
+
+.trade-entry-rating .star-filled {
+    color: var(--accent-yellow);
+    font-size: 0.75rem;
+}
+
+.trade-entry-rating .star-empty {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    opacity: 0.3;
+}
+
+.trade-entry-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.trade-entry-pnl {
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    min-width: 90px;
+    text-align: right;
+}
+
+.trade-entry-pnl.win {
+    color: var(--accent-green);
+}
+
+.trade-entry-pnl.loss {
+    color: var(--accent-red);
+}
+
+.trade-entry-pnl.breakeven {
+    color: var(--text-muted);
+}
+
+.trade-entry-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 70px;
+    text-align: right;
+}
+
+.trade-entry-arrow {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    transition: transform var(--transition-fast);
+}
+
+/* ---- Trade Entry Expanded Body ---- */
+.trade-entry-body {
+    display: none;
+    padding: 0 var(--space-lg) var(--space-lg);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.trade-entry-card.expanded .trade-entry-body {
+    display: block;
+}
+
+.trade-entry-card.expanded .trade-entry-arrow {
+    transform: rotate(180deg);
+}
+
+.trade-entry-details-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+}
+
+.trade-entry-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.trade-entry-detail-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.trade-entry-detail-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+/* Reflection text in expanded card */
+.trade-entry-reflection {
+    margin-top: var(--space-md);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.trade-entry-reflection-block {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+}
+
+.trade-entry-reflection-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+}
+
+.trade-entry-reflection-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Card Actions */
+.trade-entry-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.trade-entry-actions .btn {
+    font-size: 0.78rem;
+    padding: 6px 14px;
+}
+
+/* ==========================================================================
+   4. TRADE ENTRY CARD STATUS STRIP (Left accent)
+   ========================================================================== */
+
+.trade-entry-card {
+    position: relative;
+}
+
+.trade-entry-card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+    transition: background var(--transition-smooth);
+}
+
+.trade-entry-card.result-win::after {
+    background: var(--accent-green);
+}
+
+.trade-entry-card.result-loss::after {
+    background: var(--accent-red);
+}
+
+.trade-entry-card.result-breakeven::after {
+    background: var(--text-muted);
+}
+
+/* ==========================================================================
+   5. DIRECTION TOGGLE (Inside Modal)
+   ========================================================================== */
+
+.direction-toggle-modal {
+    display: flex;
+    gap: 6px;
+}
+
+.dir-btn-modal {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: center;
+}
+
+.dir-btn-modal.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(59, 110, 255, 0.2);
+}
+
+.dir-btn-modal:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+
+/* ==========================================================================
+   6. STAR RATING SYSTEM
+   ========================================================================== */
+
+.rating-stars {
+    display: flex;
+    gap: 4px;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.star-btn:hover {
+    color: var(--accent-yellow);
+    transform: scale(1.15);
+}
+
+.star-btn.active {
+    color: var(--accent-yellow);
+}
+
+.star-btn.active:hover {
+    transform: scale(1.05);
+}
+
+/* ==========================================================================
+   7. FORM DIVIDER
+   ========================================================================== */
+
+.form-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: var(--space-xs) 0;
+}
+
+/* ==========================================================================
+   8. MODAL JOURNAL (Wider for more fields)
+   ========================================================================== */
+
+.modal-journal {
+    max-width: 620px;
+}
+
+/* ==========================================================================
+   9. TRADE DETAIL MODAL CONTENT
+   ========================================================================== */
+
+#tradeDetailContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.detail-value.win {
+    color: var(--accent-green);
+}
+
+.detail-value.loss {
+    color: var(--accent-red);
+}
+
+.detail-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.detail-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 8px 0;
+}
+
+/* ==========================================================================
+   10. EMPTY STATE
+   ========================================================================== */
+
+.journal-entries .empty-state {
+    padding: var(--space-2xl);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-lg);
+}
+
+/* ==========================================================================
+   11. RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    .journal-stats-bar {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .trade-entry-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .trade-entry-reflection {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .journal-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .journal-filters {
+        flex-wrap: wrap;
+    }
+    
+    .journal-stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .trade-entry-header {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+    
+    .trade-entry-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .trade-entry-details-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .modal-journal {
+        max-width: 100%;
+        margin: var(--space-sm);
+    }
+    
+    .form-row-4 {
+        grid-template-columns: 1fr 1fr;
+    }
+}

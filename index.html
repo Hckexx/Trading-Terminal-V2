@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeTerminal | Risk Management</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>TradeTerminal <span class="subtitle">Professional Risk Workspace</span></h1>
+    </header>
+
+    <main id="app">
+        <section id="account-config" class="card">
+            <h2>Account Configuration</h2>
+            <div class="grid-form">
+                <select id="acc-type">
+                    <option value="live">Live Account</option>
+                    <option value="demo">Demo Account</option>
+                    <option value="prop">Prop Firm</option>
+                </select>
+                <input type="number" id="acc-balance" placeholder="Account Balance ($)">
+                </div>
+        </section>
+
+        <section id="calculator" class="card">
+            <h2>Position Size Calculator</h2>
+            <div class="grid-form">
+                <input type="text" id="calc-pair" placeholder="Pair (e.g., EURUSD)">
+                <select id="calc-direction">
+                    <option value="buy">BUY</option>
+                    <option value="sell">SELL</option>
+                </select>
+                <input type="number" id="calc-entry" placeholder="Entry Price">
+                <input type="number" id="calc-sl" placeholder="Stop Loss">
+                <input type="number" id="calc-tp" placeholder="Take Profit (Optional)">
+                <input type="number" id="calc-risk-pct" placeholder="Risk %">
+            </div>
+            <div id="calc-results" class="results-grid">
+                </div>
+        </section>
+        
+        <section id="dashboard" class="card">
+            <h2>Risk Dashboard</h2>
+            <div id="dash-grid" class="dashboard-grid">
+                </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

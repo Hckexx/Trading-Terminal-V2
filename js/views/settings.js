@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Settings View (Updated)
+   TRADETERMINAL V2 — Settings View (Fixed)
    Workspace + Trading Accounts + Data Management
    ========================================================================== */
 
@@ -50,45 +50,89 @@ const SettingsView = {
     },
 
     bindEvents() {
-        // Save workspace button
+        // Save workspace button — with confirmation toast
         const btnSave = document.getElementById('btnSaveWorkspace');
         if (btnSave) {
             btnSave.addEventListener('click', () => {
                 this.saveWorkspaceSettings();
-                UI.showToast('Settings applied.');
+                const name = this.elements.displayName.value.trim();
+                if (name) {
+                    UI.showToast('Settings saved. Welcome, ' + name + '.');
+                } else {
+                    UI.showToast('Settings saved.');
+                }
             });
         }
 
         // Workspace — also save on blur/change
-        this.elements.displayName.addEventListener('blur', () => this.saveWorkspaceSettings());
-        this.elements.theme.addEventListener('change', () => this.saveWorkspaceSettings());
-        this.elements.currency.addEventListener('change', () => this.saveWorkspaceSettings());
-        this.elements.timezone.addEventListener('change', () => this.saveWorkspaceSettings());
+        if (this.elements.displayName) {
+            this.elements.displayName.addEventListener('blur', () => {
+                this.saveWorkspaceSettings();
+            });
+        }
+        if (this.elements.theme) {
+            this.elements.theme.addEventListener('change', () => this.saveWorkspaceSettings());
+        }
+        if (this.elements.currency) {
+            this.elements.currency.addEventListener('change', () => this.saveWorkspaceSettings());
+        }
+        if (this.elements.timezone) {
+            this.elements.timezone.addEventListener('change', () => this.saveWorkspaceSettings());
+        }
 
-        // Accounts
-        this.elements.btnAddAccount.addEventListener('click', () => this.openAccountModal());
-        this.elements.btnAccountModalClose.addEventListener('click', () => this.closeAccountModal());
-        this.elements.btnAccountModalCancel.addEventListener('click', () => this.closeAccountModal());
-        this.elements.accountModal.addEventListener('click', (e) => {
-            if (e.target === this.elements.accountModal) this.closeAccountModal();
-        });
-        this.elements.accountForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveAccount();
-        });
+        // Accounts — Add Account button
+        if (this.elements.btnAddAccount) {
+            this.elements.btnAddAccount.addEventListener('click', () => {
+                console.log('Add Account button clicked');
+                this.openAccountModal();
+            });
+        }
+
+        // Account Modal close buttons
+        if (this.elements.btnAccountModalClose) {
+            this.elements.btnAccountModalClose.addEventListener('click', () => this.closeAccountModal());
+        }
+        if (this.elements.btnAccountModalCancel) {
+            this.elements.btnAccountModalCancel.addEventListener('click', () => this.closeAccountModal());
+        }
+        if (this.elements.accountModal) {
+            this.elements.accountModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.accountModal) this.closeAccountModal();
+            });
+        }
+
+        // Save account form
+        if (this.elements.accountForm) {
+            this.elements.accountForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveAccount();
+            });
+        }
+
+        // Close on Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeAccountModal();
         });
 
-        // Data
-        this.elements.btnExportData.addEventListener('click', () => this.exportData());
-        this.elements.btnImportData.addEventListener('click', () => this.elements.importFileInput.click());
-        this.elements.importFileInput.addEventListener('change', (e) => this.importData(e));
-        this.elements.btnResetData.addEventListener('click', () => this.resetAllData());
+        // Data buttons
+        if (this.elements.btnExportData) {
+            this.elements.btnExportData.addEventListener('click', () => this.exportData());
+        }
+        if (this.elements.btnImportData) {
+            this.elements.btnImportData.addEventListener('click', () => this.elements.importFileInput.click());
+        }
+        if (this.elements.importFileInput) {
+            this.elements.importFileInput.addEventListener('change', (e) => this.importData(e));
+        }
+        if (this.elements.btnResetData) {
+            this.elements.btnResetData.addEventListener('click', () => this.resetAllData());
+        }
 
-        // Re-render on view change
+        // Re-render when settings view becomes visible
         EventBus.on(EVENTS.VIEW_CHANGED, (data) => {
-            if (data.view === 'settings') this.render();
+            if (data.view === 'settings') {
+                this.render();
+            }
         });
     },
 
@@ -107,12 +151,12 @@ const SettingsView = {
     },
 
     saveWorkspaceSettings() {
-        const displayName = this.elements.displayName.value.trim();
+        const displayName = this.elements.displayName ? this.elements.displayName.value.trim() : '';
         const settings = {
             displayName: displayName,
-            theme: this.elements.theme.value,
-            currency: this.elements.currency.value,
-            timezone: this.elements.timezone.value
+            theme: this.elements.theme ? this.elements.theme.value : 'midnight',
+            currency: this.elements.currency ? this.elements.currency.value : 'USD',
+            timezone: this.elements.timezone ? this.elements.timezone.value : 'auto'
         };
         Storage.save(CONFIG.STORAGE_KEYS.SETTINGS, settings);
 
@@ -121,14 +165,24 @@ const SettingsView = {
         Storage.save(CONFIG.STORAGE_KEYS.TRADER_NAME, displayName);
         EventBus.emit(EVENTS.TRADER_NAME_CHANGED, displayName);
         EventBus.emit(EVENTS.DASHBOARD_REFRESH);
+
+        console.log('Workspace settings saved:', settings);
     },
 
     loadWorkspaceSettings() {
         const settings = Storage.load(CONFIG.STORAGE_KEYS.SETTINGS, {});
-        if (settings.displayName) this.elements.displayName.value = settings.displayName;
-        if (settings.theme) this.elements.theme.value = settings.theme;
-        if (settings.currency) this.elements.currency.value = settings.currency;
-        if (settings.timezone) this.elements.timezone.value = settings.timezone;
+        if (this.elements.displayName && settings.displayName) {
+            this.elements.displayName.value = settings.displayName;
+        }
+        if (this.elements.theme && settings.theme) {
+            this.elements.theme.value = settings.theme;
+        }
+        if (this.elements.currency && settings.currency) {
+            this.elements.currency.value = settings.currency;
+        }
+        if (this.elements.timezone && settings.timezone) {
+            this.elements.timezone.value = settings.timezone;
+        }
     },
 
     // ==========================================
@@ -141,8 +195,9 @@ const SettingsView = {
 
     renderAccountsList() {
         const container = this.elements.accountsList;
+        if (!container) return;
 
-        if (Store.accounts.length === 0) {
+        if (!Store.accounts || Store.accounts.length === 0) {
             container.innerHTML = '<p class="empty-state">No accounts yet. Add one to get started.</p>';
             return;
         }
@@ -219,7 +274,7 @@ const SettingsView = {
     // ==========================================
     openAccountModal(accountId = null) {
         // Check limit for new accounts
-        if (!accountId && Store.accounts.length >= 10) {
+        if (!accountId && Store.accounts && Store.accounts.length >= 10) {
             UI.showToast('Maximum 10 accounts allowed. Delete an existing account first.');
             return;
         }
@@ -229,48 +284,53 @@ const SettingsView = {
         if (accountId) {
             const account = Store.accounts.find(a => a.id === accountId);
             if (!account) return;
-            this.elements.accountModalTitle.textContent = 'Edit Account';
-            this.elements.accountFormId.value = account.id;
-            this.elements.accountName.value = account.name;
-            this.elements.accountBroker.value = account.broker || '';
-            this.elements.accountType.value = account.type;
-            this.elements.accountCurrency.value = account.currency || 'USD';
-            this.elements.accountBalance.value = account.balance;
-            this.elements.accountDailyDD.value = account.dailyDDPercent || '';
-            this.elements.accountOverallDD.value = account.overallDDPercent || '';
-            this.elements.accountProfitTarget.value = account.profitTargetPercent || '';
+            if (this.elements.accountModalTitle) this.elements.accountModalTitle.textContent = 'Edit Account';
+            if (this.elements.accountFormId) this.elements.accountFormId.value = account.id;
+            if (this.elements.accountName) this.elements.accountName.value = account.name;
+            if (this.elements.accountBroker) this.elements.accountBroker.value = account.broker || '';
+            if (this.elements.accountType) this.elements.accountType.value = account.type;
+            if (this.elements.accountCurrency) this.elements.accountCurrency.value = account.currency || 'USD';
+            if (this.elements.accountBalance) this.elements.accountBalance.value = account.balance;
+            if (this.elements.accountDailyDD) this.elements.accountDailyDD.value = account.dailyDDPercent || '';
+            if (this.elements.accountOverallDD) this.elements.accountOverallDD.value = account.overallDDPercent || '';
+            if (this.elements.accountProfitTarget) this.elements.accountProfitTarget.value = account.profitTargetPercent || '';
         } else {
-            this.elements.accountModalTitle.textContent = 'Add Account';
-            this.elements.accountForm.reset();
-            this.elements.accountFormId.value = '';
-            this.elements.accountCurrency.value = 'USD';
+            if (this.elements.accountModalTitle) this.elements.accountModalTitle.textContent = 'Add Account';
+            if (this.elements.accountForm) this.elements.accountForm.reset();
+            if (this.elements.accountFormId) this.elements.accountFormId.value = '';
+            if (this.elements.accountCurrency) this.elements.accountCurrency.value = 'USD';
         }
 
-        this.elements.accountModal.classList.remove('hidden');
+        if (this.elements.accountModal) {
+            this.elements.accountModal.classList.remove('hidden');
+        }
         document.body.style.overflow = 'hidden';
+        console.log('Account modal opened. Edit mode:', !!accountId);
     },
 
     closeAccountModal() {
-        this.elements.accountModal.classList.add('hidden');
+        if (this.elements.accountModal) {
+            this.elements.accountModal.classList.add('hidden');
+        }
         document.body.style.overflow = '';
         this.editingAccountId = null;
     },
 
     saveAccount() {
-        const name = this.elements.accountName.value.trim();
-        const broker = this.elements.accountBroker.value.trim();
-        const type = this.elements.accountType.value;
-        const currency = this.elements.accountCurrency.value;
-        const balance = parseFloat(this.elements.accountBalance.value);
-        const dailyDD = parseFloat(this.elements.accountDailyDD.value) || 0;
-        const overallDD = parseFloat(this.elements.accountOverallDD.value) || 0;
-        const profitTarget = parseFloat(this.elements.accountProfitTarget.value) || 0;
+        const name = this.elements.accountName ? this.elements.accountName.value.trim() : '';
+        const broker = this.elements.accountBroker ? this.elements.accountBroker.value.trim() : '';
+        const type = this.elements.accountType ? this.elements.accountType.value : 'Demo';
+        const currency = this.elements.accountCurrency ? this.elements.accountCurrency.value : 'USD';
+        const balance = this.elements.accountBalance ? parseFloat(this.elements.accountBalance.value) : 0;
+        const dailyDD = this.elements.accountDailyDD ? (parseFloat(this.elements.accountDailyDD.value) || 0) : 0;
+        const overallDD = this.elements.accountOverallDD ? (parseFloat(this.elements.accountOverallDD.value) || 0) : 0;
+        const profitTarget = this.elements.accountProfitTarget ? (parseFloat(this.elements.accountProfitTarget.value) || 0) : 0;
 
         if (!name) { UI.showToast('Please enter an account name.'); return; }
         if (isNaN(balance) || balance <= 0) { UI.showToast('Please enter a valid balance.'); return; }
 
         // Check account limit for new accounts
-        if (!this.editingAccountId && Store.accounts.length >= 10) {
+        if (!this.editingAccountId && Store.accounts && Store.accounts.length >= 10) {
             UI.showToast('Maximum 10 accounts allowed. Delete an existing account first.');
             return;
         }
@@ -296,6 +356,7 @@ const SettingsView = {
             }
             UI.showToast('Account updated.');
         } else {
+            if (!Store.accounts) Store.accounts = [];
             if (Store.accounts.length === 0) {
                 accountData.isActive = true;
                 Store.activeAccountId = accountData.id;
@@ -310,6 +371,7 @@ const SettingsView = {
     },
 
     setActiveAccount(accountId) {
+        if (!Store.accounts) return;
         Store.accounts.forEach(a => a.isActive = false);
         const account = Store.accounts.find(a => a.id === accountId);
         if (account) {
@@ -322,6 +384,7 @@ const SettingsView = {
     },
 
     deleteAccount(accountId) {
+        if (!Store.accounts) return;
         const account = Store.accounts.find(a => a.id === accountId);
         if (!account) return;
         if (!confirm(`Delete account "${account.name}"?`)) return;
@@ -375,7 +438,9 @@ const SettingsView = {
             }
         };
         reader.readAsText(file);
-        this.elements.importFileInput.value = '';
+        if (this.elements.importFileInput) {
+            this.elements.importFileInput.value = '';
+        }
     },
 
     resetAllData() {

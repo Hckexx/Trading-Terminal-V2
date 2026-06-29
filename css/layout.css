@@ -129,6 +129,7 @@
     flex-direction: column;
     transition: transform var(--transition-smooth);
     overflow-y: auto;
+    transform: translateX(0);  /* ← ADD THIS LINE */
 }
 
 .drawer-header {

@@ -1,0 +1,298 @@
+/* ==========================================================================
+   TRADETERMINAL V2 — Dashboard View
+   ========================================================================== */
+
+/* ---- Dashboard Greeting ---- */
+#dashboardGreeting {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* ---- Dashboard Grids ---- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.dashboard-grid-3col {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* ---- Dashboard Cards ---- */
+.dash-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: transparent;
+    transition: background var(--transition-smooth);
+}
+
+.dash-card:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-card-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
+}
+
+.dash-card:hover::before {
+    background: var(--accent-blue);
+}
+
+.dash-card-accent {
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dash-card-accent::before {
+    background: var(--accent-purple) !important;
+}
+
+.dash-card-status {
+    border-color: var(--border-default);
+}
+
+.dash-card-status.safe {
+    border-color: rgba(14, 203, 129, 0.3);
+}
+
+.dash-card-status.safe::before {
+    background: var(--accent-green) !important;
+}
+
+.dash-card-status.caution {
+    border-color: rgba(245, 166, 35, 0.3);
+}
+
+.dash-card-status.caution::before {
+    background: var(--accent-yellow) !important;
+}
+
+.dash-card-status.danger {
+    border-color: rgba(242, 57, 79, 0.3);
+}
+
+.dash-card-status.danger::before {
+    background: var(--accent-red) !important;
+}
+
+/* ---- Card Content ---- */
+.dash-card-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--space-sm);
+}
+
+.dash-card-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.dash-card-sub {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+}
+
+/* P&L Colors */
+.dash-card-value.positive {
+    color: var(--accent-green);
+}
+
+.dash-card-value.negative {
+    color: var(--accent-red);
+}
+
+/* Risk Badge */
+.risk-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-badge.safe {
+    background: var(--accent-green-subtle);
+    color: var(--accent-green);
+}
+
+.risk-badge.caution {
+    background: var(--accent-yellow-subtle);
+    color: var(--accent-yellow);
+}
+
+.risk-badge.danger {
+    background: var(--accent-red-subtle);
+    color: var(--accent-red);
+}
+
+/* ---- Recent Trades Section ---- */
+.dashboard-section {
+    margin-top: var(--space-lg);
+}
+
+.trades-table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+/* Trade Row (Compact) */
+.trade-row-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px var(--space-lg);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--transition-fast);
+    cursor: pointer;
+}
+
+.trade-row-compact:last-child {
+    border-bottom: none;
+}
+
+.trade-row-compact:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.trade-info-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.trade-pair {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.trade-direction {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.trade-direction.buy {
+    background: var(--accent-green-subtle);
+    color: var(--accent-green);
+}
+
+.trade-direction.sell {
+    background: var(--accent-red-subtle);
+    color: var(--accent-red);
+}
+
+.trade-score {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.trade-score.grade-a {
+    background: var(--accent-green-subtle);
+    color: var(--accent-green);
+}
+
+.trade-score.grade-b {
+    background: var(--accent-blue-subtle);
+    color: var(--accent-blue);
+}
+
+.trade-score.grade-c {
+    background: var(--accent-yellow-subtle);
+    color: var(--accent-yellow);
+}
+
+.trade-score.grade-d {
+    background: var(--accent-red-subtle);
+    color: var(--accent-red);
+}
+
+.trade-info-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.trade-pnl {
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+}
+
+.trade-pnl.win {
+    color: var(--accent-green);
+}
+
+.trade-pnl.loss {
+    color: var(--accent-red);
+}
+
+.trade-date-compact {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ---- Quick Actions ---- */
+.dashboard-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.dashboard-actions .btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 0.95rem;
+    justify-content: center;
+}
+
+/* ---- Stop Trading Banner ---- */
+.stop-trading-banner {
+    display: none;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--accent-red-subtle);
+    border: 1px solid rgba(242, 57, 79, 0.4);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.stop-trading-banner.visible {
+    display: block;
+}
+
+.stop-trading-banner p {
+    color: var(--accent-red);
+    font-weight: 700;
+    font-size: 1.1rem;
+}

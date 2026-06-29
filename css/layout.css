@@ -94,7 +94,7 @@
 
 /* ---- Hamburger Button ---- */
 .btn-hamburger {
-    display: flex;
+    display: none; /* Hidden on desktop by default */
     flex-direction: column;
     gap: 4px;
     padding: 8px;
@@ -129,7 +129,6 @@
     flex-direction: column;
     transition: transform var(--transition-smooth);
     overflow-y: auto;
-    transform: translateX(0);  /* ← ADD THIS LINE */
 }
 
 .drawer-header {
@@ -159,6 +158,7 @@
 }
 
 .btn-drawer-close {
+    display: none; /* Hidden on desktop */
     padding: var(--space-xs);
     border-radius: var(--radius-sm);
     color: var(--text-muted);
@@ -228,7 +228,7 @@
     font-family: var(--font-mono);
 }
 
-/* ---- Drawer Overlay (Mobile) ---- */
+/* ---- Drawer Overlay ---- */
 .drawer-overlay {
     display: none;
     position: fixed;
@@ -236,6 +236,10 @@
     z-index: 99;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(2px);
+}
+
+.drawer-overlay.visible {
+    display: block;
 }
 
 /* ---- View Containers ---- */
@@ -328,30 +332,35 @@
 .progress-fill.danger {
     background: var(--accent-red);
 }
+
 /* ==========================================================================
-   DRAWER MOBILE BEHAVIOR & DEFAULT STATE
+   RESPONSIVE BEHAVIOR
    ========================================================================== */
 
-/* By default, drawer is visible on desktop, hidden off-screen on mobile */
-.nav-drawer {
-    transform: translateX(0);
+/* ---- Desktop (default): Drawer always visible, no hamburger ---- */
+@media (min-width: 769px) {
+    .nav-drawer {
+        transform: translateX(0);
+    }
+    
+    .btn-hamburger {
+        display: none;
+    }
+    
+    .btn-drawer-close {
+        display: none;
+    }
+    
+    .drawer-overlay {
+        display: none !important;
+    }
+    
+    .app-main {
+        margin-left: var(--drawer-width);
+    }
 }
 
-/* Overlay hidden by default */
-.drawer-overlay {
-    display: none;
-}
-
-.drawer-overlay.visible {
-    display: block;
-}
-
-/* Drawer close button — visible on mobile only */
-.btn-drawer-close {
-    display: none;
-}
-
-/* On mobile: drawer slides off-screen by default */
+/* ---- Tablet & Mobile: Drawer hidden, hamburger visible ---- */
 @media (max-width: 768px) {
     .nav-drawer {
         transform: translateX(-100%);
@@ -359,6 +368,11 @@
     
     .nav-drawer.open {
         transform: translateX(0);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .btn-hamburger {
+        display: flex;
     }
     
     .btn-drawer-close {
@@ -366,13 +380,19 @@
     }
     
     .app-main {
-        margin-left: 0 !important;
+        margin-left: 0;
     }
-}
-
-/* On desktop: drawer always visible */
-@media (min-width: 769px) {
-    .nav-drawer {
-        transform: translateX(0) !important;
+    
+    .top-bar-title {
+        font-size: 0.95rem;
+    }
+    
+    .stat-pill {
+        min-width: 60px;
+        padding: var(--space-xs) var(--space-sm);
+    }
+    
+    .stat-pill .stat-value {
+        font-size: 0.75rem;
     }
 }

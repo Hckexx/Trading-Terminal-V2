@@ -182,6 +182,18 @@ const JournalView = {
             this.currentFilters.pair = this.elements.filterPair.value;
             this.renderAll();
         });
+
+        // Listen for account changes from Settings
+        EventBus.on(EVENTS.ACCOUNTS_UPDATED, () => {
+            this.populateFilterDropdowns();
+            this.populateAccountDropdown(this.elements.tradeAccount);
+            this.populateAccountDropdown(this.elements.editTradeAccount);
+            this.renderAll();
+        });
+
+        EventBus.on(EVENTS.ACTIVE_ACCOUNT_CHANGED, () => {
+            this.populateFilterDropdowns();
+        });
     },
 
     // ==========================================
@@ -196,7 +208,6 @@ const JournalView = {
     closeModal(modal) {
         if (!modal) return;
         modal.classList.add('hidden');
-        // Only restore scroll if no other modals are open
         const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
         if (openModals.length === 0) {
             document.body.style.overflow = '';
@@ -207,6 +218,13 @@ const JournalView = {
     // NEW TRADE MODAL
     // ==========================================
     openNewTradeModal() {
+        // Check if accounts exist
+        if (Store.accounts.length === 0) {
+            UI.showToast('Please add an account in Settings first.');
+            Router.navigateTo('settings');
+            return;
+        }
+
         this.elements.modalTitle.textContent = 'New Trade Entry';
         this.elements.tradeForm.reset();
         this.populateAccountDropdown(this.elements.tradeAccount);
@@ -427,8 +445,6 @@ const JournalView = {
     // FORM DATA COLLECTION
     // ==========================================
     collectFormData(mode) {
-        const prefix = mode === 'new' ? '' : 'edit';
-
         const accountId = mode === 'new'
             ? this.elements.tradeAccount.value
             : this.elements.editTradeAccount.value;
@@ -518,7 +534,6 @@ const JournalView = {
             trades = trades.filter(t => t.pair === this.currentFilters.pair);
         }
 
-        // Sort by date descending, then by createdAt
         trades.sort((a, b) => {
             const dateA = `${a.date}T${a.createdAt || ''}`;
             const dateB = `${b.date}T${b.createdAt || ''}`;
@@ -532,42 +547,54 @@ const JournalView = {
     // DROPDOWN POPULATION
     // ==========================================
     populateFilterDropdowns() {
-    // Account filter
-    const accountFilter = this.elements.filterAccount;
-    const currentAccountFilter = accountFilter.value;
-    accountFilter.innerHTML = '<option value="all">All Accounts</option>';
-    Store.accounts.forEach(acc => {
-        const selected = currentAccountFilter === acc.id ? 'selected' : '';
-        accountFilter.innerHTML += `<option value="${acc.id}" ${selected}>${UI.escapeHTML(acc.name)}</option>`;
-    });
-    // Restore previous selection if it still exists
-    if (currentAccountFilter && Store.accounts.some(a => a.id === currentAccountFilter)) {
-        accountFilter.value = currentAccountFilter;
-    } else {
-        accountFilter.value = 'all';
-        this.currentFilters.account = 'all';
-    }
-
-    // Pair filter
-    const pairFilter = this.elements.filterPair;
-    const currentPairFilter = pairFilter.value;
-    pairFilter.innerHTML = '<option value="all">All Pairs</option>';
-    const usedPairs = new Set();
-    JOURNAL_PAIRS.forEach(p => usedPairs.add(p));
-    Store.journal.forEach(t => { if (t.pair) usedPairs.add(t.pair); });
-    [...usedPairs].sort().forEach(p => {
-        if (p) {
-            const selected = currentPairFilter === p ? 'selected' : '';
-            pairFilter.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
+        // Account filter
+        const accountFilter = this.elements.filterAccount;
+        const currentAccountFilter = accountFilter.value;
+        accountFilter.innerHTML = '<option value="all">All Accounts</option>';
+        Store.accounts.forEach(acc => {
+            const selected = currentAccountFilter === acc.id ? 'selected' : '';
+            accountFilter.innerHTML += `<option value="${acc.id}" ${selected}>${UI.escapeHTML(acc.name)}</option>`;
+        });
+        if (currentAccountFilter && Store.accounts.some(a => a.id === currentAccountFilter)) {
+            accountFilter.value = currentAccountFilter;
+        } else {
+            accountFilter.value = 'all';
+            this.currentFilters.account = 'all';
         }
-    });
-    if (currentPairFilter && [...usedPairs].has(currentPairFilter)) {
-        pairFilter.value = currentPairFilter;
-    } else {
-        pairFilter.value = 'all';
-        this.currentFilters.pair = 'all';
-    }
-}
+
+        // Pair filter
+        const pairFilter = this.elements.filterPair;
+        const currentPairFilter = pairFilter.value;
+        pairFilter.innerHTML = '<option value="all">All Pairs</option>';
+        const usedPairs = new Set();
+        JOURNAL_PAIRS.forEach(p => usedPairs.add(p));
+        Store.journal.forEach(t => { if (t.pair) usedPairs.add(t.pair); });
+        [...usedPairs].sort().forEach(p => {
+            if (p) {
+                const selected = currentPairFilter === p ? 'selected' : '';
+                pairFilter.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
+            }
+        });
+        if (currentPairFilter && [...usedPairs].has(currentPairFilter)) {
+            pairFilter.value = currentPairFilter;
+        } else {
+            pairFilter.value = 'all';
+            this.currentFilters.pair = 'all';
+        }
+    },
+
+    populateAccountDropdown(selectElement) {
+        if (!selectElement) return;
+        selectElement.innerHTML = '<option value="">Select Account</option>';
+        if (Store.accounts.length === 0) {
+            selectElement.innerHTML += '<option value="" disabled>No accounts — add one in Settings</option>';
+        } else {
+            Store.accounts.forEach(acc => {
+                selectElement.innerHTML += `<option value="${acc.id}">${UI.escapeHTML(acc.name)}</option>`;
+            });
+        }
+    },
+
     // ==========================================
     // RENDER
     // ==========================================
@@ -588,7 +615,6 @@ const JournalView = {
         const totalPnL = trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
         const winRate = closed > 0 ? Math.round((wins / closed) * 100) : null;
 
-        // Best & Worst
         let best = null, worst = null;
         trades.forEach(t => {
             const p = t.pnl || 0;
@@ -596,7 +622,6 @@ const JournalView = {
             if (worst === null || p < worst) worst = p;
         });
 
-        // Avg R:R (approximate: avg win / abs(avg loss))
         const winTrades = trades.filter(t => t.result === 'WIN' && t.pnl > 0);
         const lossTrades = trades.filter(t => t.result === 'LOSS' && t.pnl < 0);
         let avgRR = null;
@@ -606,13 +631,10 @@ const JournalView = {
             if (avgLoss > 0) avgRR = avgWin / avgLoss;
         }
 
-        // Update DOM
         this.elements.totalTrades.textContent = total;
         this.elements.winRate.textContent = winRate !== null ? `${winRate}%` : '--';
-        this.elements.totalPnL.textContent = FORMATTERS.currency.format(Math.abs(totalPnL));
-        this.elements.totalPnL.style.color = totalPnL >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         this.elements.totalPnL.textContent = (totalPnL >= 0 ? '+' : '-') + FORMATTERS.currency.format(Math.abs(totalPnL));
-
+        this.elements.totalPnL.style.color = totalPnL >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         this.elements.avgRR.textContent = avgRR !== null ? FORMATTERS.ratio.format(avgRR) + ':1' : '--';
         this.elements.bestTrade.textContent = best !== null ? '+' + FORMATTERS.currency.format(best) : '--';
         this.elements.worstTrade.textContent = worst !== null ? FORMATTERS.currency.format(worst) : '--';
@@ -629,40 +651,24 @@ const JournalView = {
 
         container.innerHTML = trades.map(trade => this.buildEntryCard(trade)).join('');
 
-        // Bind click events for each card
         container.querySelectorAll('.trade-entry-card').forEach(card => {
             const tradeId = card.dataset.tradeId;
 
-           // Listen for account changes (when user adds/edits accounts in Settings)
-EventBus.on(EVENTS.ACCOUNTS_UPDATED, () => {
-    this.populateFilterDropdowns();
-    this.renderAll();
-});
- 
-EventBus.on(EVENTS.ACTIVE_ACCOUNT_CHANGED, () => {
-    this.populateFilterDropdowns();
-});
-
-            // Click on header to expand/collapse
             card.querySelector('.trade-entry-header').addEventListener('click', (e) => {
-                // Don't toggle if clicking action buttons
                 if (e.target.closest('.btn')) return;
                 card.classList.toggle('expanded');
             });
 
-            // Edit button
             card.querySelector('.btn-edit-trade')?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.openEditModal(tradeId);
             });
 
-            // Delete button
             card.querySelector('.btn-delete-trade')?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.deleteTrade(tradeId);
             });
 
-            // View detail button
             card.querySelector('.btn-view-trade')?.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.openDetailModal(tradeId);
@@ -725,10 +731,6 @@ EventBus.on(EVENTS.ACTIVE_ACCOUNT_CHANGED, () => {
                             <span class="trade-entry-detail-label">Risk</span>
                             <span class="trade-entry-detail-value">${trade.riskPercent}%</span>
                         </div>` : '<div></div>'}
-                        <div class="trade-entry-detail">
-                            <span class="trade-entry-detail-label">R:R</span>
-                            <span class="trade-entry-detail-value">${trade.riskPercent && trade.pnl ? FORMATTERS.ratio.format(Math.abs(trade.pnl) / (trade.riskPercent > 0 ? (trade.pnl > 0 ? 1 : -1) * trade.pnl : 1)) : '--'}</span>
-                        </div>
                     </div>
                     ${(trade.wentWell || trade.mistakes || trade.lesson) ? `
                     <div class="trade-entry-reflection">

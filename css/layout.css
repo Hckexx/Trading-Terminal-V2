@@ -327,3 +327,51 @@
 .progress-fill.danger {
     background: var(--accent-red);
 }
+/* ==========================================================================
+   DRAWER MOBILE BEHAVIOR & DEFAULT STATE
+   ========================================================================== */
+
+/* By default, drawer is visible on desktop, hidden off-screen on mobile */
+.nav-drawer {
+    transform: translateX(0);
+}
+
+/* Overlay hidden by default */
+.drawer-overlay {
+    display: none;
+}
+
+.drawer-overlay.visible {
+    display: block;
+}
+
+/* Drawer close button — visible on mobile only */
+.btn-drawer-close {
+    display: none;
+}
+
+/* On mobile: drawer slides off-screen by default */
+@media (max-width: 768px) {
+    .nav-drawer {
+        transform: translateX(-100%);
+    }
+    
+    .nav-drawer.open {
+        transform: translateX(0);
+    }
+    
+    .btn-drawer-close {
+        display: flex;
+    }
+    
+    .app-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* On desktop: drawer always visible */
+@media (min-width: 769px) {
+    .nav-drawer {
+        transform: translateX(0) !important;
+    }
+}

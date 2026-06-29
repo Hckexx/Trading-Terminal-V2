@@ -1,16 +1,14 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Router (Fixed)
+   TRADETERMINAL V2 — Router (Desktop + Mobile Fixed)
    ========================================================================== */
 
 const Router = {
     currentView: 'dashboard',
-    isDrawerOpen: false,
 
     init() {
         this.cacheDOM();
         this.bindEvents();
         this.navigateTo('dashboard');
-        this.closeDrawer(); // Ensure drawer starts closed on mobile
     },
 
     cacheDOM() {
@@ -23,7 +21,7 @@ const Router = {
     },
 
     bindEvents() {
-        // Navigation links inside drawer
+        // Navigation links
         this.navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -32,7 +30,7 @@ const Router = {
             });
         });
 
-        // Cross-navigation buttons (data-view attribute outside drawer)
+        // Buttons with data-view (cross-navigation)
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-view]');
             if (btn && !btn.closest('.nav-link') && !btn.closest('#navDrawer')) {
@@ -41,7 +39,7 @@ const Router = {
             }
         });
 
-        // Drawer open button (hamburger)
+        // Hamburger open
         if (this.btnOpen) {
             this.btnOpen.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -49,7 +47,7 @@ const Router = {
             });
         }
 
-        // Drawer close button (X inside drawer)
+        // X close button
         if (this.btnClose) {
             this.btnClose.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -57,62 +55,40 @@ const Router = {
             });
         }
 
-        // Overlay click closes drawer
+        // Overlay click
         if (this.overlay) {
             this.overlay.addEventListener('click', () => this.closeDrawer());
         }
 
-        // Close drawer on Escape key
+        // Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isDrawerOpen) {
-                this.closeDrawer();
-            }
-        });
-
-        // Close drawer when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (this.isDrawerOpen && 
-                !this.drawer.contains(e.target) && 
-                e.target !== this.btnOpen &&
-                !this.btnOpen.contains(e.target)) {
-                this.closeDrawer();
-            }
+            if (e.key === 'Escape') this.closeDrawer();
         });
     },
 
     navigateTo(viewName) {
         if (!viewName) return;
 
-        // Hide all views
-        this.viewContainers.forEach(container => {
-            container.classList.remove('active');
-        });
-
-        // Show target view
+        this.viewContainers.forEach(c => c.classList.remove('active'));
+        
         const target = document.getElementById(`view-${viewName}`);
-        if (target) {
-            target.classList.add('active');
-        }
+        if (target) target.classList.add('active');
 
-        // Update nav active state
         this.navLinks.forEach(link => {
             const item = link.closest('.nav-item');
             if (item) {
-                if (link.dataset.view === viewName) {
-                    item.classList.add('active');
+                const isActive = link.dataset.view === viewName;
+                item.classList.toggle('active', isActive);
+                if (isActive) {
                     link.setAttribute('aria-current', 'page');
                 } else {
-                    item.classList.remove('active');
                     link.removeAttribute('aria-current');
                 }
             }
         });
 
         this.currentView = viewName;
-        
-        // Close drawer after navigation (especially important on mobile)
         this.closeDrawer();
-        
         EventBus.emit(EVENTS.VIEW_CHANGED, { view: viewName });
     },
 
@@ -120,15 +96,11 @@ const Router = {
         if (!this.drawer) return;
         this.drawer.classList.add('open');
         if (this.overlay) this.overlay.classList.add('visible');
-        this.isDrawerOpen = true;
-        document.body.style.overflow = 'hidden';
     },
 
     closeDrawer() {
         if (!this.drawer) return;
         this.drawer.classList.remove('open');
         if (this.overlay) this.overlay.classList.remove('visible');
-        this.isDrawerOpen = false;
-        document.body.style.overflow = '';
     }
 };

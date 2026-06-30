@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Dashboard View (Live Balance + Fixed DD)
+   TRADETERMINAL V2 — Dashboard View (Live Balance + DD + Milestone)
    ========================================================================== */
 
 const DashboardView = {
@@ -9,6 +9,7 @@ const DashboardView = {
     init() {
         this.cacheDOM();
         this.bindEvents();
+        this.bindMilestoneEvents();
         this.refresh();
         // Update time every 30 seconds
         this._timeInterval = setInterval(() => this.updateTime(), 30000);
@@ -38,14 +39,14 @@ const DashboardView = {
             headerTodayPnL: document.getElementById('headerTodayPnL'),
             headerRiskStatus: document.getElementById('headerRiskStatus'),
             // Banner
-            stopBanner: document.getElementById('stopTradingBanner')
-           // Milestone
-             milestoneTarget: document.getElementById('milestoneTarget'),
+            stopBanner: document.getElementById('stopTradingBanner'),
+            // Milestone
+            milestoneTarget: document.getElementById('milestoneTarget'),
             milestoneCurrent: document.getElementById('milestoneCurrent'),
-           milestoneRemaining: document.getElementById('milestoneRemaining'),
-           milestoneBarFill: document.getElementById('milestoneBarFill'),
+            milestoneRemaining: document.getElementById('milestoneRemaining'),
+            milestoneBarFill: document.getElementById('milestoneBarFill'),
             milestonePercent: document.getElementById('milestonePercent'),
-           milestoneStatus: document.getElementById('milestoneStatus'),
+            milestoneStatus: document.getElementById('milestoneStatus'),
         };
     },
 
@@ -57,10 +58,54 @@ const DashboardView = {
         EventBus.on(EVENTS.DASHBOARD_REFRESH, () => this.refresh());
     },
 
+    bindMilestoneEvents() {
+        const modal = document.getElementById('milestoneModal');
+        const form = document.getElementById('milestoneForm');
+        const btnEdit = document.getElementById('btnEditMilestone');
+        const btnClose = document.getElementById('btnMilestoneModalClose');
+        const btnCancel = document.getElementById('btnMilestoneModalCancel');
+        const targetInput = document.getElementById('milestoneTargetInput');
+        const receivedInput = document.getElementById('milestoneReceivedInput');
+
+        if (btnEdit) {
+            btnEdit.addEventListener('click', () => {
+                const milestone = Storage.load('tt_milestone', { target: 10000, received: 0 });
+                if (targetInput) targetInput.value = milestone.target;
+                if (receivedInput) receivedInput.value = milestone.received;
+                if (modal) modal.classList.remove('hidden');
+            });
+        }
+
+        if (btnClose) btnClose.addEventListener('click', () => { if (modal) modal.classList.add('hidden'); });
+        if (btnCancel) btnCancel.addEventListener('click', () => { if (modal) modal.classList.add('hidden'); });
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const target = parseFloat(targetInput?.value) || 10000;
+                const received = parseFloat(receivedInput?.value) || 0;
+                if (target <= 0) {
+                    UI.showToast('Target must be greater than 0.');
+                    return;
+                }
+                Storage.save('tt_milestone', { target, received });
+                this.renderMilestone({ target, received });
+                if (modal) modal.classList.add('hidden');
+                UI.showToast('Milestone updated.');
+            });
+        }
+    },
+
     refresh() {
         this.updateGreeting();
         this.updateTime();
         this.loadAccountInfo();
+        this.loadMilestone();
         this.calculateMetrics();
         this.renderRecentTrades();
         this.updateHeaderStats();
@@ -123,6 +168,47 @@ const DashboardView = {
         this.elements.headerBalance.textContent = balanceFormatted;
     },
 
+    loadMilestone() {
+        const milestone = Storage.load('tt_milestone', { target: 10000, received: 0 });
+        this.renderMilestone(milestone);
+    },
+
+    renderMilestone(milestone) {
+        const target = milestone.target || 10000;
+        const received = milestone.received || 0;
+        const remaining = Math.max(0, target - received);
+        const percent = target > 0 ? Math.min(100, Math.round((received / target) * 100)) : 0;
+
+        if (this.elements.milestoneTarget) {
+            this.elements.milestoneTarget.textContent = FORMATTERS.compact.format(target);
+        }
+        if (this.elements.milestoneCurrent) {
+            this.elements.milestoneCurrent.textContent = FORMATTERS.compact.format(received);
+        }
+        if (this.elements.milestoneRemaining) {
+            this.elements.milestoneRemaining.textContent = FORMATTERS.compact.format(remaining);
+        }
+        if (this.elements.milestoneBarFill) {
+            this.elements.milestoneBarFill.style.width = `${percent}%`;
+        }
+        if (this.elements.milestonePercent) {
+            this.elements.milestonePercent.textContent = `${percent}%`;
+        }
+        if (this.elements.milestoneStatus) {
+            if (percent >= 100) {
+                this.elements.milestoneStatus.textContent = '🎉 Milestone reached! Time for a payout.';
+            } else if (percent >= 75) {
+                this.elements.milestoneStatus.textContent = 'Almost there. Stay disciplined.';
+            } else if (percent >= 50) {
+                this.elements.milestoneStatus.textContent = 'Halfway. Momentum is building.';
+            } else if (percent >= 25) {
+                this.elements.milestoneStatus.textContent = 'Solid progress. Keep going.';
+            } else {
+                this.elements.milestoneStatus.textContent = 'Keep pushing. Every trade counts.';
+            }
+        }
+    },
+
     calculateMetrics() {
         const activeAccount = this.getActiveAccount();
         const trades = Store.journal || [];
@@ -155,9 +241,7 @@ const DashboardView = {
 
         // Drawdown calculations
         if (activeAccount) {
-            // Calculate current balance for DD calculations
             const totalPnL = allClosed.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
-            const currentBalance = activeAccount.balance + totalPnL;
             
             const dailyDDLimit = activeAccount.balance * (activeAccount.dailyDDPercent / 100);
             const overallDDLimit = activeAccount.balance * (activeAccount.overallDDPercent / 100);
@@ -227,16 +311,13 @@ const DashboardView = {
             this.showStopBanner(false);
         }
 
-        // Dashboard risk badge
         this.elements.riskStatus.textContent = status;
         this.elements.riskStatus.className = `risk-badge ${className}`;
 
-        // Risk status card border
         const card = this.elements.riskStatusCard;
         card.classList.remove('safe', 'caution', 'danger');
         card.classList.add(className);
 
-        // Header risk indicator
         const headerStatus = this.elements.headerRiskStatus;
         headerStatus.textContent = status === 'SAFE' ? '🟢' : status === 'CAUTION' ? '🟡' : '🔴';
         headerStatus.className = 'stat-value risk-indicator ' + headerClass;

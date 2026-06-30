@@ -725,3 +725,105 @@
         min-width: 100%;
     }
 }
+
+/* ==========================================================================
+   MILESTONE TRACKER
+   ========================================================================== */
+
+.milestone-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    transition: var(--transition-fast);
+}
+
+.milestone-card:hover {
+    border-color: var(--border-strong);
+}
+
+.milestone-header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    text-align: center;
+}
+
+.milestone-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.milestone-target,
+.milestone-current,
+.milestone-remaining {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+}
+
+.milestone-target {
+    color: var(--accent-blue);
+}
+
+.milestone-current {
+    color: var(--accent-green);
+}
+
+.milestone-remaining {
+    color: var(--accent-yellow);
+}
+
+.milestone-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.milestone-bar-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.milestone-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.milestone-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.milestone-percent {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    min-width: 50px;
+    text-align: right;
+}
+
+.milestone-status {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Modal small */
+.modal-sm {
+    max-width: 420px;
+}

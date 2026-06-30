@@ -15,23 +15,17 @@
         // Initialize router (handles navigation)
         Router.init();
 
-        // Initialize Dashboard view (it's the default)
+        // Initialize all views
         DashboardView.init();
-
-        // Initialize Journal view
         JournalView.init();
-
-        // Initialize Settings view
         SettingsView.init();
-
-       // Initialize Calculator view
-CalculatorView.init();
+        CalculatorView.init();
+        ChecklistView.init();
 
         // Subscribe to journal updates for dashboard refresh
         EventBus.on(EVENTS.JOURNAL_UPDATED, () => {
             if (Router.currentView === 'dashboard') {
                 DashboardView.refresh();
-               
             }
         });
 

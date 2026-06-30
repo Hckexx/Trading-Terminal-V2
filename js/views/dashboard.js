@@ -39,6 +39,13 @@ const DashboardView = {
             headerRiskStatus: document.getElementById('headerRiskStatus'),
             // Banner
             stopBanner: document.getElementById('stopTradingBanner')
+           // Milestone
+             milestoneTarget: document.getElementById('milestoneTarget'),
+            milestoneCurrent: document.getElementById('milestoneCurrent'),
+           milestoneRemaining: document.getElementById('milestoneRemaining'),
+           milestoneBarFill: document.getElementById('milestoneBarFill'),
+            milestonePercent: document.getElementById('milestonePercent'),
+           milestoneStatus: document.getElementById('milestoneStatus'),
         };
     },
 

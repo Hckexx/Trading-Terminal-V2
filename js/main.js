@@ -1,58 +1,40 @@
-/* ==========================================================================
-   TRADETERMINAL V2 — Main Entry Point
-   ========================================================================== */
-
 (function() {
     'use strict';
 
     function init() {
-        // Load persisted data
         loadState();
+        
+        if (typeof UI !== 'undefined') UI.init();
+        if (typeof Router !== 'undefined') Router.init();
+        if (typeof DashboardView !== 'undefined') DashboardView.init();
+        if (typeof JournalView !== 'undefined') JournalView.init();
+        if (typeof SettingsView !== 'undefined') SettingsView.init();
+        if (typeof CalculatorView !== 'undefined') CalculatorView.init();
+        if (typeof ChecklistView !== 'undefined') ChecklistView.init();
 
-        // Initialize shared UI
-        UI.init();
+        if (typeof EventBus !== 'undefined') {
+            EventBus.on(EVENTS.JOURNAL_UPDATED, function() {
+                if (typeof Router !== 'undefined' && Router.currentView === 'dashboard') {
+                    if (typeof DashboardView !== 'undefined') DashboardView.refresh();
+                }
+            });
+        }
 
-        // Initialize router (handles navigation)
-        Router.init();
-
-        // Initialize all views
-        DashboardView.init();
-        JournalView.init();
-        SettingsView.init();
-        CalculatorView.init();
-        ChecklistView.init();
-
-        // Subscribe to journal updates for dashboard refresh
-        EventBus.on(EVENTS.JOURNAL_UPDATED, () => {
-            if (Router.currentView === 'dashboard') {
-                DashboardView.refresh();
-            }
-        });
-
-        // Mark ready
-        console.log(`TradeTerminal v${CONFIG.VERSION} ready.`);
+        console.log('TradeTerminal ready.');
     }
 
     function loadState() {
-        // Load trader name
+        if (typeof Storage === 'undefined' || typeof Store === 'undefined') return;
+        
         Store.traderName = Storage.load(CONFIG.STORAGE_KEYS.TRADER_NAME, '');
-
-        // Load accounts
         Store.accounts = Storage.load(CONFIG.STORAGE_KEYS.ACCOUNTS, []);
-
-        // Load active account
         Store.activeAccountId = Storage.load(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT, null);
-
-        // Load journal
         Store.journal = Storage.load(CONFIG.STORAGE_KEYS.JOURNAL, []);
 
-        // If active account doesn't exist in accounts, clear it
-        if (Store.activeAccountId && !Store.accounts.find(a => a.id === Store.activeAccountId)) {
+        if (Store.activeAccountId && !Store.accounts.find(function(a) { return a.id === Store.activeAccountId; })) {
             Store.activeAccountId = null;
             Storage.remove(CONFIG.STORAGE_KEYS.ACTIVE_ACCOUNT);
         }
-
-        // If no active account but accounts exist, set first as active
         if (!Store.activeAccountId && Store.accounts.length > 0) {
             Store.accounts[0].isActive = true;
             Store.activeAccountId = Store.accounts[0].id;
@@ -61,7 +43,6 @@
         }
     }
 
-    // Start on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

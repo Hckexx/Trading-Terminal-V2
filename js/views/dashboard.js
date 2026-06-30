@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TRADETERMINAL V2 — Dashboard View (Updated with Time)
+   TRADETERMINAL V2 — Dashboard View (Live Balance + Fixed DD)
    ========================================================================== */
 
 const DashboardView = {
@@ -93,7 +93,7 @@ const DashboardView = {
             return;
         }
 
-        // Account type badge — updated for new types
+        // Account type badge
         const typeLabels = {
             'Live': '🟢 Live',
             'Demo': '🔵 Demo',
@@ -104,8 +104,14 @@ const DashboardView = {
         this.elements.accountType.textContent = typeLabels[activeAccount.type] || activeAccount.type;
         this.elements.accountName.textContent = activeAccount.name;
 
-        // Balance
-        const balanceFormatted = FORMATTERS.compact.format(activeAccount.balance);
+        // Calculate LIVE balance: starting balance + all-time P&L
+        const trades = Store.journal || [];
+        const allClosed = trades.filter(t => t.result);
+        const totalPnL = allClosed.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
+        const currentBalance = activeAccount.balance + totalPnL;
+
+        // Display current balance
+        const balanceFormatted = FORMATTERS.compact.format(currentBalance);
         this.elements.balance.textContent = balanceFormatted;
         this.elements.headerBalance.textContent = balanceFormatted;
     },
@@ -117,13 +123,13 @@ const DashboardView = {
         // Today's date
         const today = new Date().toISOString().split('T')[0];
         
-        // Today's trades — filter by date, all trades with a result are "closed"
+        // Today's trades
         const todayTrades = trades.filter(t => t.date === today && t.result);
         
         // Today's P&L
         const todayPnL = todayTrades.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
         
-        // Win rate (all time) — any trade with a result counts
+        // Win rate (all time)
         const allClosed = trades.filter(t => t.result);
         const wins = allClosed.filter(t => t.result === 'WIN').length;
         const totalClosed = allClosed.length;
@@ -142,6 +148,10 @@ const DashboardView = {
 
         // Drawdown calculations
         if (activeAccount) {
+            // Calculate current balance for DD calculations
+            const totalPnL = allClosed.reduce((sum, t) => sum + (parseFloat(t.pnl) || 0), 0);
+            const currentBalance = activeAccount.balance + totalPnL;
+            
             const dailyDDLimit = activeAccount.balance * (activeAccount.dailyDDPercent / 100);
             const overallDDLimit = activeAccount.balance * (activeAccount.overallDDPercent / 100);
             

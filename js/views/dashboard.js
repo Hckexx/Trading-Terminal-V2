@@ -13,6 +13,7 @@ const DashboardView = {
         this.refresh();
         // Update time every 30 seconds
         this._timeInterval = setInterval(() => this.updateTime(), 30000);
+       this._sessionInterval = setInterval(() => this.updateSession(), 60000);
     },
 
     cacheDOM() {
@@ -109,6 +110,7 @@ const DashboardView = {
         this.calculateMetrics();
         this.renderRecentTrades();
         this.updateHeaderStats();
+       this.updateSession();
     },
 
     updateGreeting() {

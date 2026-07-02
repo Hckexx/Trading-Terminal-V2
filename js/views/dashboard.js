@@ -133,7 +133,49 @@ const DashboardView = {
             this.elements.headerTime.textContent = timeStr;
         }
     },
+updateSession() {
+    const now = new Date();
+    const hours = now.getUTCHours();
+    const minutes = now.getUTCMinutes();
+    const day = now.getUTCDay();
+    
+    if (day === 6 || day === 0) {
+        document.getElementById('sessionStatus').textContent = 'WEEKEND';
+        document.getElementById('sessionTimeLeft').textContent = 'Market Closed';
+        document.getElementById('sessionPill').classList.add('session-inactive');
+        return;
+    }
 
+    const currentMinutes = hours * 60 + minutes;
+    
+    if (currentMinutes >= 0 && currentMinutes < 420) {
+        // Asian session (00:00-07:00 GMT)
+        const remaining = 420 - currentMinutes;
+        document.getElementById('sessionStatus').textContent = 'ASIAN';
+        document.getElementById('sessionTimeLeft').textContent = Math.floor(remaining/60) + 'h ' + (remaining%60) + 'm';
+        document.getElementById('sessionPill').classList.remove('session-active');
+        document.getElementById('sessionPill').classList.add('session-inactive');
+    } else if (currentMinutes >= 420 && currentMinutes < 900) {
+        // London session (07:00-15:00 GMT)
+        const remaining = 900 - currentMinutes;
+        document.getElementById('sessionStatus').textContent = 'LONDON';
+        document.getElementById('sessionTimeLeft').textContent = Math.floor(remaining/60) + 'h ' + (remaining%60) + 'm';
+        document.getElementById('sessionPill').classList.add('session-active');
+        document.getElementById('sessionPill').classList.remove('session-inactive');
+    } else if (currentMinutes >= 720 && currentMinutes < 1200) {
+        // NY session (12:00-20:00 GMT)
+        const remaining = 1200 - currentMinutes;
+        document.getElementById('sessionStatus').textContent = 'NEW YORK';
+        document.getElementById('sessionTimeLeft').textContent = Math.floor(remaining/60) + 'h ' + (remaining%60) + 'm';
+        document.getElementById('sessionPill').classList.add('session-active');
+        document.getElementById('sessionPill').classList.remove('session-inactive');
+    } else {
+        document.getElementById('sessionStatus').textContent = 'NO SESSION';
+        document.getElementById('sessionTimeLeft').textContent = '';
+        document.getElementById('sessionPill').classList.remove('session-active');
+        document.getElementById('sessionPill').classList.add('session-inactive');
+    }
+},
     loadAccountInfo() {
         const activeAccount = this.getActiveAccount();
 

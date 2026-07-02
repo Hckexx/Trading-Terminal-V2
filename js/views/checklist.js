@@ -83,28 +83,50 @@ const ChecklistView = {
         }
     },
 
-    saveToJournal() {
-        const checked = Array.from(this.elements.checkboxes).filter(cb => cb.checked).length;
-        if (checked < 7) { UI.showToast('Complete at least 7 steps before trading.'); return; }
+   saveToJournal() {
+    const checked = Array.from(this.elements.checkboxes).filter(cb => cb.checked).length;
+    if (checked < 7) { UI.showToast('Complete at least 7 steps before trading.'); return; }
 
-        Router.navigateTo('journal');
-        setTimeout(() => {
-            if (typeof JournalView !== 'undefined' && JournalView.openNewTradeModal) {
-                if (!Store.accounts || Store.accounts.length === 0) {
-                    UI.showToast('Add an account in Settings first.');
-                    return;
-                }
-                JournalView.openNewTradeModal();
-                setTimeout(() => {
-                    const scoreInput = document.getElementById('tradeChecklistScore');
-                    if (scoreInput) scoreInput.value = Math.round((checked / this.elements.checkboxes.length) * 100);
-                    const pairInput = document.getElementById('tradePair');
-                    if (pairInput) pairInput.value = 'XAUUSD';
-                }, 100);
+    // Determine HTF Direction from checklist
+    const htfCheck = document.querySelector('[data-id="htf_direction"]');
+    const htfDirection = htfCheck?.checked ? 'Bullish' : 'Not confirmed';
+    
+    // Determine session from the session clock
+    const sessionStatus = document.getElementById('sessionStatus')?.textContent || '';
+    let session = '';
+    if (sessionStatus === 'LONDON') session = 'London';
+    else if (sessionStatus === 'NEW YORK') session = 'New York';
+    else if (sessionStatus === 'ASIAN') session = 'Asian';
+    else session = sessionStatus;
+
+    // Navigate to journal and open new trade
+    Router.navigateTo('journal');
+    
+    setTimeout(() => {
+        if (typeof JournalView !== 'undefined' && JournalView.openNewTradeModal) {
+            if (!Store.accounts || Store.accounts.length === 0) {
+                UI.showToast('Add an account in Settings first.');
+                return;
             }
-        }, 200);
-        UI.showToast(`Session readiness: ${Math.round((checked/this.elements.checkboxes.length)*100)}%. Log your trade.`);
-    },
+            JournalView.openNewTradeModal();
+            
+            // Pre-fill fields
+            setTimeout(() => {
+                const scoreInput = document.getElementById('tradeChecklistScore');
+                const pairInput = document.getElementById('tradePair');
+                const sessionInput = document.getElementById('tradeSession');
+                const htfInput = document.getElementById('tradeHTFDirection');
+                
+                if (scoreInput) scoreInput.value = Math.round((checked / 10) * 100);
+                if (pairInput) pairInput.value = 'XAUUSD';
+                if (sessionInput && session) sessionInput.value = session;
+                if (htfInput && htfDirection) htfInput.value = htfDirection;
+            }, 150);
+        }
+    }, 300);
+    
+    UI.showToast(`Checklist ${Math.round((checked/10)*100)}% — Journal opened.`);
+},
 
     saveState() {
         const state = {};

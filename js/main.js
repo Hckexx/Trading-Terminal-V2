@@ -20,6 +20,25 @@
             });
         }
 
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            if (typeof Router === 'undefined') return;
+            
+            switch(e.key.toLowerCase()) {
+                case 'd': Router.navigateTo('dashboard'); break;
+                case 'c': Router.navigateTo('calculator'); break;
+                case 'j': Router.navigateTo('journal'); break;
+                case 's': Router.navigateTo('settings'); break;
+                case 'p': Router.navigateTo('checklist'); break;
+                case 'n': 
+                    if (Router.currentView === 'journal' && typeof JournalView !== 'undefined' && JournalView.openNewTradeModal) {
+                        JournalView.openNewTradeModal();
+                    }
+                    break;
+            }
+        });
+
         console.log('TradeTerminal ready.');
     }
 

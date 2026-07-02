@@ -827,3 +827,35 @@
 .modal-sm {
     max-width: 420px;
 }
+.trade-counter-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+}
+.trade-counter-card.limit-reached { border-color: var(--accent-red); }
+.trade-counter-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-md);
+}
+.trade-counter-label { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.trade-counter-value { font-size: 1.5rem; font-weight: 700; font-family: var(--font-mono); }
+.trade-counter-max { font-size: 0.9rem; color: var(--text-muted); }
+.trade-counter-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+}
+.trade-counter-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: var(--accent-blue);
+    transition: width 0.3s;
+}
+.trade-counter-fill.full { background: var(--accent-red); }
+.trade-counter-status { font-size: 0.75rem; color: var(--text-muted); }

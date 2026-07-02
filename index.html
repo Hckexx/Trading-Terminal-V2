@@ -396,20 +396,149 @@
             </div>
         </section>
 
-        <!-- ==================================== -->
-        <!-- VIEW: TRADE CHECKLIST                -->
+                <!-- ==================================== -->
+        <!-- VIEW: XAUUSD SESSION PLAN            -->
         <!-- ==================================== -->
         <section id="view-checklist" class="view-container" role="tabpanel">
             <div class="view-header">
-                <h2 class="view-title">Trade Checklist</h2>
-                <p class="view-subtitle">Pre-Trade Ritual</p>
+                <h2 class="view-title">XAUUSD Session Plan</h2>
+                <p class="view-subtitle">Your daily pre-market routine. Every session. Every time.</p>
             </div>
-            <div class="placeholder-content">
-                <span class="placeholder-icon">✅</span>
-                <p>Checklist will be wired in V2.4</p>
+
+            <div class="checklist-layout">
+                <!-- Left: Checklist -->
+                <div class="checklist-card">
+                    
+                    <!-- Phase 1: Pre-Market -->
+                    <div class="checklist-group">
+                        <h3 class="checklist-group-title">
+                            <span class="phase-badge phase-premarket">Pre-Market</span>
+                            10 min before session
+                        </h3>
+                        
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="htf_direction">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Check 4H Trend Direction</span>
+                            <span class="checklist-item-hint">Price above or below 4H EMA 50? If ranging → NO TRADE today.</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="mark_levels">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Mark Key Liquidity Levels</span>
+                            <span class="checklist-item-hint">Yesterday's high/low, Asian session high/low, equal highs/lows</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="session_selected">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Confirm Trading Session</span>
+                            <span class="checklist-item-hint">London Open (07:00 GMT) or NY Open (12:00 GMT). No Asian chop.</span>
+                        </label>
+                    </div>
+
+                    <!-- Phase 2: During Session -->
+                    <div class="checklist-group">
+                        <h3 class="checklist-group-title">
+                            <span class="phase-badge phase-during">During Session</span>
+                            Wait for your setup
+                        </h3>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="sweep_htf">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Liquidity Sweep in HTF Direction</span>
+                            <span class="checklist-item-hint">Only sweeps of lows (bullish) or highs (bearish). Ignore opposite.</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="displacement">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Displacement Confirmed (BOS/CHoCH)</span>
+                            <span class="checklist-item-hint">Strong candle closing beyond the sweep. NOT just a wick.</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="retracement_entry">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Entry on Retracement (FVG/OB)</span>
+                            <span class="checklist-item-hint">Enter on FVG fill or order block. NOT on the sweep candle itself.</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="sl_set">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">SL & TP Set Correctly</span>
+                            <span class="checklist-item-hint">SL beyond the sweep. TP at opposite liquidity. R:R minimum 2:1.</span>
+                        </label>
+                    </div>
+
+                    <!-- Phase 3: Post-Session -->
+                    <div class="checklist-group">
+                        <h3 class="checklist-group-title">
+                            <span class="phase-badge phase-post">Post-Session</span>
+                            Log & close
+                        </h3>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="logged_trade">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Trade Logged in Journal</span>
+                            <span class="checklist-item-hint">Record: HTF direction, sweep type, result, reflection.</span>
+                        </label>
+
+                        <label class="checklist-item">
+                            <input type="checkbox" class="checklist-checkbox" data-id="walk_away">
+                            <span class="checklist-custom-check"></span>
+                            <span class="checklist-item-text">Walk Away. Close Laptop.</span>
+                            <span class="checklist-item-hint">No revenge trading. No "one more look." Session is done.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Right: Score & Summary -->
+                <div class="checklist-score-panel">
+                    <div class="checklist-score-card" id="checklistScoreCard">
+                        <span class="checklist-score-label">Session Readiness</span>
+                        <div class="checklist-score-circle" id="checklistScoreCircle">
+                            <span class="checklist-score-number" id="checklistScoreNumber">0</span>
+                            <span class="checklist-score-total">/10</span>
+                        </div>
+                        <div class="checklist-grade" id="checklistGrade">
+                            <span class="checklist-grade-badge" id="checklistGradeBadge">--</span>
+                            <span class="checklist-grade-text" id="checklistGradeText">Complete all steps above</span>
+                        </div>
+                    </div>
+
+                    <div class="checklist-summary" id="checklistSummary">
+                        <div class="checklist-summary-row">
+                            <span>Steps Completed</span>
+                            <span id="checklistCheckedCount">0/10</span>
+                        </div>
+                        <div class="checklist-summary-row">
+                            <span>Readiness Score</span>
+                            <span id="checklistMiniScore">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="checklist-rule-box" id="checklistRuleBox">
+                        <span class="rule-box-title">Session Rules</span>
+                        <ul class="rule-list">
+                            <li>4H ranging = <strong>No Trade</strong></li>
+                            <li>Only London or NY session</li>
+                            <li>Max 2 trades per session</li>
+                            <li>Walk away after session ends</li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-actions">
+                        <button id="btnChecklistReset" class="btn btn-secondary">Reset</button>
+                        <button id="btnChecklistSave" class="btn btn-primary" disabled>Save & Go to Journal</button>
+                    </div>
+                </div>
             </div>
         </section>
-
 
         <!-- ==================================== -->
         <!-- VIEW: TRADE JOURNAL                  -->
